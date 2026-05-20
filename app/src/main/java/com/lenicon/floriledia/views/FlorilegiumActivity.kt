@@ -36,17 +36,19 @@ class FlorilegiumActivity : AppCompatActivity() {
         tvEmptyState = findViewById(R.id.tv_empty_state)
         val rvPlants = findViewById<RecyclerView>(R.id.rv_plants)
 
-        // Load your data (mocked here)
+        // Load your data
         loadData()
         tvHeaderTitle.text = "Florilegium (${savedPlants.size})"
 
         // Setup RecyclerView
         rvPlants.layoutManager = GridLayoutManager(this, 2)
+        
+        // Connect the click lambda to launch the detailed view
         adapter = PlantAdapter(savedPlants) { plant ->
-            // Equivalent to Navigator.push(MaterialPageRoute(...))
-            // val intent = Intent(this, PlantDetailScreenActivity::class.java)
-            // intent.putExtra("PLANT_DATA", plant)
-            // startActivity(intent)
+            val intent = Intent(this, PlantDetailsActivity::class.java).apply {
+                putExtra("PLANT_EXTRA", plant)
+            }
+            startActivity(intent)
         }
         rvPlants.adapter = adapter
         

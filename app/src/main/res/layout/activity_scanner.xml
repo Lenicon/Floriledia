@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tvPhotoCount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="Photos: 0 / 5 (same plant's organs)"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <!-- Photo Management Grid -->
+    <GridView
+        android:id="@+id/gvPhotos"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/btnIdentify"
+        android:layout_below="@id/tvPhotoCount"
+        android:numColumns="2"
+        android:horizontalSpacing="12dp"
+        android:verticalSpacing="12dp"
+        android:paddingHorizontal="16dp"
+        android:clipToPadding="false" />
+
+    <!-- Dynamic Actions Button Frame -->
+    <FrameLayout
+        android:id="@+id/btnIdentify"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="20dp"
+        android:background="#FFCCCCCC" 
+        android:clickable="false"
+        android:focusable="true">
+
+        <LinearLayout
+            android:id="@+id/layoutButtonContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <ProgressBar
+                android:id="@+id/pbLoading"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="12dp"
+                android:visibility="gone"
+                android:indeterminateTint="@android:color/white" />
+
+            <TextView
+                android:id="@+id/tvButtonText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Identify Plant"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </FrameLayout>
+</RelativeLayout>

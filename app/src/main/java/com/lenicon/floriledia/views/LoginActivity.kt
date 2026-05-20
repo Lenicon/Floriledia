@@ -49,6 +49,7 @@ class LoginActivity : Activity(), LoginContract.View {
 
     override fun navigateToMain() {
         showMessage("Success! Logging in...")
+        startActivity(Intent(this, FlorilegiumActivity::class.java))
     }
 
     override fun onDestroy() {

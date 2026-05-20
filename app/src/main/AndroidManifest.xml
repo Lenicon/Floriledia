@@ -27,6 +27,7 @@
             android:exported="false" />
         
         <activity android:name=".views.FlorilegiumActivity" android:exported="false" />
+        <activity android:name=".views.PlantDetailsActivity" android:exported="false" />
 
     </application>
 
