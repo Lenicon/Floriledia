@@ -11,7 +11,11 @@ class UserPreferences(context: Context) {
         private const val KEY_IS_LOGGED_IN = "is_logged_in"
         private const val KEY_USERNAME = "saved_username"
         private const val KEY_EMAIL = "saved_email"
-        private const val KEY_PASSWORD = "saved_password" // Added password tracker
+        private const val KEY_PASSWORD = "saved_password"
+        
+        // New metric keys
+        private const val KEY_TOTAL_SCANS = "total_scans"
+        private const val KEY_SAVED_PLANTS = "saved_plants"
     }
 
     fun saveUser(username: String, email: String, password: String) {
@@ -20,18 +24,36 @@ class UserPreferences(context: Context) {
             putString(KEY_EMAIL, email)
             putString(KEY_PASSWORD, password)
             putBoolean(KEY_IS_LOGGED_IN, true)
+            // Initialize metrics to 0 on new registration if not set
+            if (!prefs.contains(KEY_TOTAL_SCANS)) putInt(KEY_TOTAL_SCANS, 0)
+            if (!prefs.contains(KEY_SAVED_PLANTS)) putInt(KEY_SAVED_PLANTS, 0)
             apply()
         }
     }
 
     fun isUserLoggedIn(): Boolean = prefs.getBoolean(KEY_IS_LOGGED_IN, false)
 
-    // Returns Triple containing Username, Email, Password
     fun getSavedUser(): Triple<String?, String?, String?> {
         return Triple(
             prefs.getString(KEY_USERNAME, null),
             prefs.getString(KEY_EMAIL, null),
             prefs.getString(KEY_PASSWORD, null)
         )
+    }
+
+    // New helper to fetch metrics
+    fun getMetrics(): Pair<Int, Int> {
+        return Pair(
+            prefs.getInt(KEY_TOTAL_SCANS, 0),
+            prefs.getInt(KEY_SAVED_PLANTS, 0)
+        )
+    }
+
+    // New session handling function for logout
+    fun clearSession() {
+        prefs.edit().apply {
+            putBoolean(KEY_IS_LOGGED_IN, false)
+            apply()
+        }
     }
 }

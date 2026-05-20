@@ -11,28 +11,29 @@
         android:padding="16dp"
         android:text="Photos: 0 / 5 (same plant's organs)"
         android:textSize="16sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:layout_alignParentTop="true" />
 
-    <!-- Photo Management Grid -->
-    <GridView
-        android:id="@+id/gvPhotos"
+    <!-- Bottom Navigation Bar pinned cleanly at the floor layer -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/btnIdentify"
-        android:layout_below="@id/tvPhotoCount"
-        android:numColumns="2"
-        android:horizontalSpacing="12dp"
-        android:verticalSpacing="12dp"
-        android:paddingHorizontal="16dp"
-        android:clipToPadding="false" />
+        android:layout_height="64dp"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/white"
+        android:elevation="20dp"
+        app:elevation="20dp"
+        app:menu="@menu/bottom_nav_menu" />
 
-    <!-- Dynamic Actions Button Frame -->
+    <!-- Action Button is anchored safely ABOVE the navigation bar container -->
     <FrameLayout
         android:id="@+id/btnIdentify"
         android:layout_width="match_parent"
         android:layout_height="54dp"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="20dp"
+        android:layout_above="@id/bottom_navigation"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
         android:background="#FFCCCCCC" 
         android:clickable="false"
         android:focusable="true">
@@ -63,4 +64,18 @@
                 android:textStyle="bold" />
         </LinearLayout>
     </FrameLayout>
+
+    <!-- Photo Management Grid (Bounded precisely between top text and the identify button) -->
+    <GridView
+        android:id="@+id/gvPhotos"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/btnIdentify"
+        android:layout_below="@id/tvPhotoCount"
+        android:numColumns="2"
+        android:horizontalSpacing="12dp"
+        android:verticalSpacing="12dp"
+        android:paddingHorizontal="16dp"
+        android:clipToPadding="false" />
+
 </RelativeLayout>

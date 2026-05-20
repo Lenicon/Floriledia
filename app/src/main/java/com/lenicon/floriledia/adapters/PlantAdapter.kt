@@ -1,4 +1,4 @@
-package com.lenicon.floriledia.views
+package com.lenicon.floriledia.adapters
 
 import android.net.Uri
 import android.view.LayoutInflater

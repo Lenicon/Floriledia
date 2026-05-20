@@ -13,6 +13,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lenicon.floriledia.R
 import com.lenicon.floriledia.models.PlantResult
+import com.lenicon.floriledia.utils.NavigationHelper
+import com.lenicon.floriledia.adapters.PlantAdapter
+
 
 class FlorilegiumActivity : AppCompatActivity() {
 
@@ -53,6 +56,8 @@ class FlorilegiumActivity : AppCompatActivity() {
         rvPlants.adapter = adapter
         
         setupSearch()
+
+        NavigationHelper.initBottomNavigation(this, R.id.nav_florilegium)
     }
 
     private fun setupSearch() {
