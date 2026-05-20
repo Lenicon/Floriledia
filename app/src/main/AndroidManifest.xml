@@ -25,6 +25,8 @@
         <activity 
             android:name=".views.RegisterActivity" 
             android:exported="false" />
+        
+        <activity android:name=".views.FlorilegiumActivity" android:exported="false" />
 
     </application>
 
