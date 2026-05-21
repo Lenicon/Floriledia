@@ -2,78 +2,77 @@ package com.lenicon.floriledia.views
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
-import android.widget.FrameLayout
-import android.widget.GridView
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.lenicon.floriledia.R
-import com.lenicon.floriledia.adapters.ScannerImageAdapter // Ensure this is imported cleanly
+import com.lenicon.floriledia.adapters.ScannerImageAdapter
+import com.lenicon.floriledia.contracts.ScannerContract
 import com.lenicon.floriledia.models.PlantPhoto
-import com.lenicon.floriledia.services.PlantApiService
+import com.lenicon.floriledia.models.PlantResult
+import com.lenicon.floriledia.presenters.ScannerPresenter
 import com.lenicon.floriledia.utils.NavigationHelper
-import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 
-class ScannerActivity : AppCompatActivity() {
+class ScannerActivity : AppCompatActivity(), ScannerContract.View {
 
-    private val selectedPhotos = mutableListOf<PlantPhoto>()
-    private val maxPhotos = 5
-    private var isLoading = false
-    private var tempCameraFile: File? = null
+    private lateinit var presenter: ScannerContract.Presenter
+    private lateinit var adapter: ScannerImageAdapter
+    private var pendingCameraFile: File? = null
 
     private lateinit var tvPhotoCount: TextView
     private lateinit var gvPhotos: GridView
     private lateinit var btnIdentify: FrameLayout
     private lateinit var pbLoading: ProgressBar
     private lateinit var tvButtonText: TextView
-    private lateinit var adapter: ScannerImageAdapter
 
-    // Photo extraction intent contract handles
-    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    // Camera launcher
+    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            result.data?.data?.let { uri -> processPickedImage(uri) }
+            pendingCameraFile?.let { file ->
+                showOrganSelectionDialog { organ -> presenter.handlePhotoCaptured(file, organ) }
+            }
         }
     }
 
-    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            tempCameraFile?.let { file -> processPickedImage(Uri.fromFile(file)) }
+    // Gallery picker launcher
+    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let { selectedUri ->
+            showOrganSelectionDialog { organ -> presenter.handleGalleryPhotoSelected(selectedUri, organ) }
+        }
+    }
+
+    // Permission request launcher
+    private val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            presenter.handleAddPhotoClick()
+        } else {
+            showError("Camera permission is required to take photos.")
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scanner)
-        supportActionBar?.title = "Plant Identifier"
 
+        // 1. Initialize views first so they are ready for the presenter
         initViews()
-        setupGrid()
-        updateUIState()
 
-        // Fixed: Pass nav_scanner to highlight the scanner tab instead of the account tab
+        // 2. Attach presenter safely
+        presenter = ScannerPresenter(lifecycleScope, filesDir, cacheDir)
+        presenter.attachView(this)
+
         NavigationHelper.initBottomNavigation(this, R.id.nav_scanner)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // Synchronize selected tab look when returning back to this active layout frame
-        val bottomNavigation = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
-        if (bottomNavigation != null) {
-            bottomNavigation.selectedItemId = R.id.nav_scanner
-        }
     }
 
     private fun initViews() {
@@ -82,122 +81,94 @@ class ScannerActivity : AppCompatActivity() {
         btnIdentify = findViewById(R.id.btnIdentify)
         pbLoading = findViewById(R.id.pbLoading)
         tvButtonText = findViewById(R.id.tvButtonText)
+
+        btnIdentify.setOnClickListener { presenter.handleIdentification() }
     }
 
-    private fun setupGrid() {
-        adapter = ScannerImageAdapter(selectedPhotos, maxPhotos,
-            onAddClick = { showPickerMenu() },
-            onDeleteClick = { index -> 
-                selectedPhotos.removeAt(index)
-                updateUIState()
-            }
+    override fun updatePhotoList(photos: List<PlantPhoto>) {
+        tvPhotoCount.text = "Photos: ${photos.size} / 5"
+        
+        adapter = ScannerImageAdapter(photos.toMutableList(), 5,
+            onAddClick = { checkPermissionAndAdd() }, // Triggered when clicking the '+' item
+            onDeleteClick = { index -> presenter.handleRemovePhoto(index) }
         )
         gvPhotos.adapter = adapter
+        
+        // btnIdentify remains completely disabled until photos are uploaded
+        val hasPhotos = photos.isNotEmpty()
+        btnIdentify.isEnabled = hasPhotos
+        btnIdentify.setBackgroundColor(if (hasPhotos) Color.parseColor("#FF524444") else Color.parseColor("#FFCCCCCC"))
     }
 
-    private fun updateUIState() {
-        tvPhotoCount.text = "Photos: ${selectedPhotos.size} / $maxPhotos (same plant's organs)"
-        adapter.notifyDataSetChanged()
-
-        val isButtonActive = selectedPhotos.isNotEmpty() && !isLoading
-        btnIdentify.isEnabled = isButtonActive
-        
-        // Dynamically style matching your primary/disabled configuration specs
-        val bgDrawable = GradientDrawable().apply {
-            cornerRadius = dpToPx(12) // Fixed: Passed explicit value into the conversion method
-            setColor(if (isButtonActive) Color.parseColor("#FF524444") else Color.parseColor("#FFCCCCCC"))
-        }
-        btnIdentify.background = bgDrawable
-
-        if (isLoading) {
-            pbLoading.visibility = View.VISIBLE
-            tvButtonText.text = "Hmm... identifying..."
+    private fun checkPermissionAndAdd() {
+        if (checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            presenter.handleAddPhotoClick()
         } else {
-            pbLoading.visibility = View.GONE
-            tvButtonText.text = "Identify Plant"
-        }
-
-        btnIdentify.setOnClickListener {
-            if (isButtonActive) handleIdentification()
+            permissionLauncher.launch(android.Manifest.permission.CAMERA)
         }
     }
 
-    private fun showPickerMenu() {
-        val dialog = BottomSheetDialog(this)
-        val view = layoutInflater.inflate(R.layout.dialog_picker_menu, null)
-        
-        view.findViewById<View>(R.id.lnGallery).setOnClickListener {
-            galleryLauncher.launch(Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI))
-            dialog.dismiss()
-        }
-
-        view.findViewById<View>(R.id.lnCamera).setOnClickListener {
-            val file = File.createTempFile("scan_", ".jpg", cacheDir)
-            tempCameraFile = file
-            val uri = FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
-            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply { putExtra(MediaStore.EXTRA_OUTPUT, uri) }
-            cameraLauncher.launch(intent)
-            dialog.dismiss()
-        }
-
-        dialog.setContentView(view)
-        dialog.show()
+    override fun showImageSourceDialog() {
+        val choices = arrayOf("Take Photo (Camera)", "Choose from Gallery")
+        AlertDialog.Builder(this)
+            .setTitle("Add Plant Photo")
+            .setItems(choices) { _, which ->
+                when (which) {
+                    0 -> presenter.handleCameraOptionSelected()
+                    1 -> presenter.handleGalleryOptionSelected()
+                }
+            }
+            .show()
     }
 
-    private fun processPickedImage(uri: Uri) {
-        val localFile = File(filesDir, "raw_${System.currentTimeMillis()}.jpg")
+    override fun triggerCameraIntent(file: File) {
+        pendingCameraFile = file
+        val uri = FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply { putExtra(MediaStore.EXTRA_OUTPUT, uri) }
+        cameraLauncher.launch(intent)
+    }
+
+    override fun triggerGalleryIntent() {
+        galleryLauncher.launch("image/*")
+    }
+
+    override fun copyUriToFile(uri: Uri, targetFile: File) {
         contentResolver.openInputStream(uri)?.use { input ->
-            FileOutputStream(localFile).use { output -> input.copyTo(output) }
+            FileOutputStream(targetFile).use { output -> input.copyTo(output) }
         }
+    }
 
-        showOrganSelectionDialog { selectedOrgan ->
-            selectedPhotos.add(PlantPhoto(localFile.absolutePath, selectedOrgan))
-            updateUIState()
+    override fun showLoading(isLoading: Boolean, progressMessage: String) {
+        pbLoading.visibility = if (isLoading) View.VISIBLE else View.GONE
+        tvButtonText.text = if (isLoading) progressMessage else "Identify Plant"
+        btnIdentify.isEnabled = !isLoading
+    }
+
+    override fun openResultScreen(plantResult: PlantResult) {
+        val intent = Intent(this, ResultScreenActivity::class.java).apply {
+            putExtra("extra_plant_result", plantResult)
         }
+        startActivity(intent)
+    }
+
+    override fun showError(message: String) {
+        AlertDialog.Builder(this)
+            .setTitle("Notice")
+            .setMessage(message)
+            .setPositiveButton("Ok") { d, _ -> d.dismiss() }
+            .show()
     }
 
     private fun showOrganSelectionDialog(onSelected: (String) -> Unit) {
         val options = arrayOf("Leaf", "Flower", "Fruit", "Bark", "Auto")
         AlertDialog.Builder(this)
             .setTitle("Identify the organ")
-            .setItems(options) { _, which ->
-                val chosen = options[which]
-                onSelected(if (chosen == "Auto") "Auto" else chosen)
-            }
+            .setItems(options) { _, which -> onSelected(options[which]) }
             .create().show()
     }
 
-    private fun handleIdentification() {
-        isLoading = true
-        updateUIState()
-
-        lifecycleScope.launch {
-            try {
-                val plantResult = PlantApiService.identifyPlant(selectedPhotos)
-                
-                // If your results display activity has a different class name, change ResultScreenActivity here
-                val intent = Intent(this@ScannerActivity, ResultScreenActivity::class.java).apply {
-                    putExtra("PLANT_DATA", plantResult)
-                }
-                startActivity(intent)
-                selectedPhotos.clear()
-            } catch (e: Exception) {
-                showErrorDialog(e.message ?: "Something went wrong.")
-            } finally {
-                isLoading = false
-                updateUIState()
-            }
-        }
+    override fun onDestroy() {
+        presenter.detachView()
+        super.onDestroy()
     }
-
-    private fun showErrorDialog(msg: String) {
-        AlertDialog.Builder(this)
-            .setTitle("Error")
-            .setMessage(msg)
-            .setPositiveButton("Okayyy, if you say so...") { d, _ -> d.dismiss() }
-            .show()
-    }
-
-    // Fixed: Accepted integer dp input argument value to safely run calculation
-    private fun dpToPx(dp: Int): Float = dp * resources.displayMetrics.density
 }

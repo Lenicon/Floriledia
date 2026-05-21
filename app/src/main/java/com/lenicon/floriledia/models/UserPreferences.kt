@@ -9,50 +9,89 @@ class UserPreferences(context: Context) {
     companion object {
         private const val PREFS_NAME = "floriledia_auth_prefs"
         private const val KEY_IS_LOGGED_IN = "is_logged_in"
-        private const val KEY_USERNAME = "saved_username"
-        private const val KEY_EMAIL = "saved_email"
-        private const val KEY_PASSWORD = "saved_password"
+        private const val KEY_CURRENT_USER_EMAIL = "current_logged_in_email"
         
-        // New metric keys
-        private const val KEY_TOTAL_SCANS = "total_scans"
-        private const val KEY_SAVED_PLANTS = "saved_plants"
+        // Suffix patterns for email-linked storage sandbox profiles
+        private const val SUFFIX_USERNAME = "_username"
+        private const val SUFFIX_PASSWORD = "_password"
+        private const val SUFFIX_TOTAL_SCANS = "_total_scans"
+        private const val SUFFIX_SAVED_PLANTS = "_saved_plants"
     }
 
-    fun saveUser(username: String, email: String, password: String) {
+    /**
+     * Registers a new account locally. Returns false if the email is already registered.
+     */
+    fun registerUser(username: String, email: String, password: String): Boolean {
+        if (emailExists(email)) return false // Email must be unique across accounts
+        
         prefs.edit().apply {
-            putString(KEY_USERNAME, username)
-            putString(KEY_EMAIL, email)
-            putString(KEY_PASSWORD, password)
-            putBoolean(KEY_IS_LOGGED_IN, true)
-            // Initialize metrics to 0 on new registration if not set
-            if (!prefs.contains(KEY_TOTAL_SCANS)) putInt(KEY_TOTAL_SCANS, 0)
-            if (!prefs.contains(KEY_SAVED_PLANTS)) putInt(KEY_SAVED_PLANTS, 0)
+            putString("user_${email}${SUFFIX_USERNAME}", username)
+            putString("user_${email}${SUFFIX_PASSWORD}", password)
+            putInt("user_${email}${SUFFIX_TOTAL_SCANS}", 0)
+            putInt("user_${email}${SUFFIX_SAVED_PLANTS}", 0)
             apply()
         }
+        return true
+    }
+
+    /**
+     * Authenticates via email and password, establishing the active session context if matched.
+     */
+    fun loginUser(email: String, password: String): Boolean {
+        val savedPassword = prefs.getString("user_${email}${SUFFIX_PASSWORD}", null)
+        if (savedPassword != null && savedPassword == password) {
+            prefs.edit().apply {
+                putBoolean(KEY_IS_LOGGED_IN, true)
+                putString(KEY_CURRENT_USER_EMAIL, email)
+                apply()
+            }
+            return true
+        }
+        return false
+    }
+
+    fun emailExists(email: String): Boolean {
+        return prefs.contains("user_${email}${SUFFIX_PASSWORD}")
     }
 
     fun isUserLoggedIn(): Boolean = prefs.getBoolean(KEY_IS_LOGGED_IN, false)
 
+    /**
+     * Gets the profile details of whoever is currently active.
+     * Returns a Triple containing: (Username, Email, Password)
+     */
     fun getSavedUser(): Triple<String?, String?, String?> {
-        return Triple(
-            prefs.getString(KEY_USERNAME, null),
-            prefs.getString(KEY_EMAIL, null),
-            prefs.getString(KEY_PASSWORD, null)
-        )
+        val currentEmail = prefs.getString(KEY_CURRENT_USER_EMAIL, null) ?: return Triple(null, null, null)
+        val username = prefs.getString("user_${currentEmail}${SUFFIX_USERNAME}", null)
+        val password = prefs.getString("user_${currentEmail}${SUFFIX_PASSWORD}", null)
+        
+        return Triple(username, currentEmail, password)
     }
 
-    // New helper to fetch metrics
+    /**
+     * Fetches scan and collection counts tailored to the active profile's email.
+     */
     fun getMetrics(): Pair<Int, Int> {
+        val currentEmail = prefs.getString(KEY_CURRENT_USER_EMAIL, null) ?: return Pair(0, 0)
         return Pair(
-            prefs.getInt(KEY_TOTAL_SCANS, 0),
-            prefs.getInt(KEY_SAVED_PLANTS, 0)
+            prefs.getInt("user_${currentEmail}${SUFFIX_TOTAL_SCANS}", 0),
+            prefs.getInt("user_${currentEmail}${SUFFIX_SAVED_PLANTS}", 0)
         )
     }
 
-    // New session handling function for logout
+    /**
+     * Increments profile metrics safely on the active email profile sandbox.
+     */
+    fun incrementScans() {
+        val currentEmail = prefs.getString(KEY_CURRENT_USER_EMAIL, null) ?: return
+        val currentScans = prefs.getInt("user_${currentEmail}${SUFFIX_TOTAL_SCANS}", 0)
+        prefs.edit().putInt("user_${currentEmail}${SUFFIX_TOTAL_SCANS}", currentScans + 1).apply()
+    }
+
     fun clearSession() {
         prefs.edit().apply {
             putBoolean(KEY_IS_LOGGED_IN, false)
+            putString(KEY_CURRENT_USER_EMAIL, null) // Terminate active pointer state
             apply()
         }
     }

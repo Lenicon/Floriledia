@@ -2,7 +2,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+    </queries>
+
+    <!-- REQUIRED: Basic networking pipelines to load web endpoints -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- REQUIRED: Hardware camera lens access framework for your ScannerActivity -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    
+    <!-- Informs app stores that camera availability won't block device downloads entirely -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
     <application
+        android:name=".MainApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -23,7 +40,6 @@
         </activity>
 
         <activity android:name=".views.RegisterActivity" android:exported="false" />
-
         <activity android:name=".views.FlorilegiumActivity" android:exported="false" />
         <activity android:name=".views.ScannerActivity" android:exported="false" />
         <activity android:name=".views.AccountActivity" android:exported="false" />

@@ -58,4 +58,9 @@ class PlantAdapter(
         }
         notifyDataSetChanged()
     }
+
+    fun updateData(newPlants: List<com.lenicon.floriledia.models.PlantResult>) {
+        this.filteredList = newPlants 
+        notifyDataSetChanged()
+    }
 }

@@ -31,11 +31,16 @@ class RegisterActivity : Activity(), RegisterContract.View {
         val btnToLogin = findViewById<Button>(R.id.btn_to_login)
 
         btnRegister.setOnClickListener {
-            presenter.register(
-                etUser.text.toString().trim(),
-                etEmail.text.toString().trim(),
-                etPassword.text.toString()
-            )
+            val username = etUser.text.toString().trim()
+            val email = etEmail.text.toString().trim()
+            val password = etPassword.text.toString()
+
+            if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                showMessage("Please fill in all fields")
+                return@setOnClickListener
+            }
+
+            presenter.register(username, email, password)
         }
 
         btnToLogin.setOnClickListener { navigateToLogin() }

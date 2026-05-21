@@ -15,9 +15,10 @@ import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
 import javax.net.ssl.X509TrustManager
+import com.lenicon.floriledia.BuildConfig
 
 object PlantApiService {
-    private const val API_KEY = "YOUR_PLANTNET_API_KEY_HERE" 
+    private const val API_KEY = BuildConfig.PLANTNET_API_KEY 
 
     // Safe unverified platform fallback matching badCertificateCallback execution logic
     private val unsafeOkHttpClient: OkHttpClient by lazy {

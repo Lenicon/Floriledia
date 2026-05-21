@@ -5,90 +5,96 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.lenicon.floriledia.R
-import com.lenicon.floriledia.models.PlantResult
-import com.lenicon.floriledia.utils.NavigationHelper
 import com.lenicon.floriledia.adapters.PlantAdapter
+import com.lenicon.floriledia.contracts.FlorilegiumContract
+import com.lenicon.floriledia.databinding.ActivityFlorilegiumBinding
+import com.lenicon.floriledia.models.PlantResult
+import com.lenicon.floriledia.presenters.FlorilegiumPresenter
+import com.lenicon.floriledia.utils.NavigationHelper
 
+class FlorilegiumActivity : AppCompatActivity(), FlorilegiumContract.View {
 
-class FlorilegiumActivity : AppCompatActivity() {
-
-    private lateinit var adapter: PlantAdapter
-    private lateinit var tvHeaderTitle: TextView
-    private lateinit var etSearch: EditText
-    private lateinit var btnClearSearch: ImageButton
-    private lateinit var tvEmptyState: TextView
-    
-    // Simulating your StorageService data
-    private var savedPlants: List<PlantResult> = listOf()
+    private lateinit var binding: ActivityFlorilegiumBinding
+    private lateinit var presenter: FlorilegiumContract.Presenter
+    private var adapter: PlantAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_florilegium)
+        binding = ActivityFlorilegiumBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // Initialize Views
-        tvHeaderTitle = findViewById(R.id.tv_header_title)
-        etSearch = findViewById(R.id.et_search)
-        btnClearSearch = findViewById(R.id.btn_clear_search)
-        tvEmptyState = findViewById(R.id.tv_empty_state)
-        val rvPlants = findViewById<RecyclerView>(R.id.rv_plants)
+        presenter = FlorilegiumPresenter(lifecycleScope)
+        presenter.attachView(this)
 
-        // Load your data
-        loadData()
-        tvHeaderTitle.text = "Florilegium (${savedPlants.size})"
-
-        // Setup RecyclerView
-        rvPlants.layoutManager = GridLayoutManager(this, 2)
-        
-        // Connect the click lambda to launch the detailed view
-        adapter = PlantAdapter(savedPlants) { plant ->
-            val intent = Intent(this, PlantDetailsActivity::class.java).apply {
-                putExtra("PLANT_EXTRA", plant)
-            }
-            startActivity(intent)
-        }
-        rvPlants.adapter = adapter
-        
+        setupRecyclerView()
         setupSearch()
-
+        
         NavigationHelper.initBottomNavigation(this, R.id.nav_florilegium)
+
+        // Begin collecting active profile dataset changes
+        presenter.startObservingCollection()
+    }
+
+    private fun setupRecyclerView() {
+        binding.rvPlants.layoutManager = GridLayoutManager(this, 2)
+        
+        // Pass item selection events straight up to the presenter interaction hub
+        adapter = PlantAdapter(emptyList()) { plant ->
+            presenter.onPlantClicked(plant)
+        }
+        binding.rvPlants.adapter = adapter
     }
 
     private fun setupSearch() {
-        etSearch.addTextChangedListener(object : TextWatcher {
+        binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                val query = s.toString()
-                
-                // Toggle clear button visibility
-                btnClearSearch.visibility = if (query.isNotEmpty()) View.VISIBLE else View.GONE
-                
-                // Filter the list
-                adapter.filter(query)
-                
-                // Toggle empty state
-                tvEmptyState.visibility = if (adapter.itemCount == 0) View.VISIBLE else View.GONE
+                presenter.onSearchQueryChanged(s.toString())
             }
         })
 
-        btnClearSearch.setOnClickListener {
-            etSearch.text.clear()
+        binding.btnClearSearch.setOnClickListener {
+            presenter.onClearSearchClicked()
         }
     }
 
-    private fun loadData() {
-        // TODO: Replace with your actual database/storage fetching logic
-        // This simulates your StorageService.load()
-        savedPlants = listOf(
-            PlantResult(nickname = "Monstera", imagePaths = listOf(), scientificName = "", authorship = "", family = "", commonNames = listOf()),
-            PlantResult(nickname = "Snake Plant", imagePaths = listOf(), scientificName = "", authorship = "", family = "", commonNames = listOf())
-        )
+    // --- MVP View Implementations ---
+
+    override fun showPlants(plants: List<PlantResult>) {
+        // Assume your PlantAdapter supports dataset replacement cleanly
+        adapter?.updateData(plants)
+    }
+
+    override fun updateHeaderTitle(count: Int) {
+        binding.tvHeaderTitle.setText("Florilegium ($count)")
+    }
+
+    override fun toggleEmptyState(isVisible: Boolean) {
+        binding.tvEmptyState.setVisibility(if (isVisible) View.VISIBLE else View.GONE)
+    }
+
+    override fun toggleClearSearchButton(isVisible: Boolean) {
+        binding.btnClearSearch.setVisibility(if (isVisible) View.VISIBLE else View.GONE)
+    }
+
+    override fun navigateToDetails(plant: PlantResult) {
+        val intent = Intent(this, PlantDetailsActivity::class.java).apply {
+            putExtra("PLANT_EXTRA", plant)
+        }
+        startActivity(intent)
+    }
+
+    override fun clearSearchInput() {
+        binding.etSearch.getText()?.clear()
+    }
+
+    override fun onDestroy() {
+        presenter.detachView()
+        super.onDestroy()
     }
 }

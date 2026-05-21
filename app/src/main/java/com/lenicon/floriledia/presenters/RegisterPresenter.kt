@@ -15,10 +15,15 @@ class RegisterPresenter(
         }
 
         view?.showLoading()
-        repository.saveUser(username, email, password)
+        val registrationSuccessful = repository.registerUser(username, email, password)
+
+        if (registrationSuccessful) {
+            view?.showMessage("Registration successful! Please login.")
+            view?.navigateToLogin()
+        } else {
+            view?.showMessage("This email address is already registered.")
+        }
         view?.hideLoading()
-        view?.showMessage("Registration Successful!")
-        view?.navigateToLogin()
     }
 
     fun detachView() { view = null }

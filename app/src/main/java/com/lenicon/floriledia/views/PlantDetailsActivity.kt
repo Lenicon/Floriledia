@@ -1,173 +1,83 @@
 package com.lenicon.floriledia.views
 
-import com.lenicon.floriledia.R
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.snackbar.Snackbar
-import com.lenicon.floriledia.models.PlantResult
-import java.io.File
 import androidx.core.content.IntentCompat
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
+import com.lenicon.floriledia.R
+import com.lenicon.floriledia.contracts.PlantDetailsContract
+import com.lenicon.floriledia.databinding.ActivityPlantDetailsBinding
+import com.lenicon.floriledia.models.PlantResult
+import com.lenicon.floriledia.presenters.PlantDetailsPresenter
+import java.io.File
 
+class PlantDetailsActivity : AppCompatActivity(), PlantDetailsContract.View {
 
-class PlantDetailsActivity : AppCompatActivity() {
-
-    private lateinit var plant: PlantResult 
-
-    private lateinit var etNickname: EditText
-    private lateinit var etNotes: EditText
-    private lateinit var btnUpdate: Button
-    private lateinit var btnBack: Button
-    private lateinit var btnDelete: Button
-    private lateinit var infoContainer: LinearLayout
-    private lateinit var tvWikiSummary: TextView
-    private lateinit var tvWikiLink: TextView
-    private lateinit var ivWikiImage: ImageView
-    private lateinit var ivPlantCollage: ImageView
-
-    private var isSaving = false
+    private lateinit var binding: ActivityPlantDetailsBinding
+    private lateinit var presenter: PlantDetailsContract.Presenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_plant_details)
+        binding = ActivityPlantDetailsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // Retrieve the serializable plant model safely from intent extras
+        presenter = PlantDetailsPresenter(lifecycleScope)
+        presenter.attachView(this)
+
         val parcelablePlant = IntentCompat.getParcelableExtra(intent, "PLANT_EXTRA", PlantResult::class.java)
-        
         if (parcelablePlant == null) {
-            Toast.makeText(this, "Failed to load plant data", Toast.LENGTH_SHORT).show()
+            showToast("Failed to load plant data")
             finish()
             return
         }
-        plant = parcelablePlant
 
-        setupActionBarTitle()
-        initViews()
-        populatePlantDetails()
+        setupActionBar()
         setupListeners()
+        
+        // Let the presenter take over data orchestration
+        presenter.initializePlant(parcelablePlant)
     }
 
-    private fun setupActionBarTitle() {
+    private fun setupActionBar() {
         supportActionBar?.apply {
-            title = if (plant.nickname.isEmpty()) {
-                "Plant Details"
-            } else {
-                "${plant.nickname}'s Details"
-            }
             setDisplayHomeAsUpEnabled(true)
         }
     }
 
-    private fun initViews() {
-        etNickname = findViewById(R.id.etNickname)
-        etNotes = findViewById(R.id.etNotes)
-        btnUpdate = findViewById(R.id.btnUpdate)
-        btnBack = findViewById(R.id.btnBack)
-        btnDelete = findViewById(R.id.btnDeleteCollection)
-        infoContainer = findViewById(R.id.infoContainer)
-        tvWikiSummary = findViewById(R.id.tvWikiSummary)
-        tvWikiLink = findViewById(R.id.tvWikiLink)
-        ivWikiImage = findViewById(R.id.wikiImage)
-        ivPlantCollage = findViewById(R.id.plantCollageImage)
-    }
-
-    private fun populatePlantDetails() {
-        etNickname.setText(plant.nickname)
-        etNotes.setText(plant.notes)
-
-        // Populate your scientific metadata fields dynamically
-        addInfoRow("Scientific Name", plant.scientificName)
-        addInfoRow("Authorship", plant.authorship)
-        addInfoRow("Family", plant.family)
-        
-        if (plant.commonNames.isNotEmpty()) {
-            addInfoRow("Common Names", plant.commonNames.joinToString(", "))
-        }
-
-        // Handle the image gallery preview from local storage paths
-        if (plant.imagePaths.isNotEmpty()) {
-            val file = File(plant.imagePaths[0])
-            if (file.exists()) {
-                ivPlantCollage.setImageURI(Uri.fromFile(file))
-            }
-        }
-
-        // Populate Wikipedia reference card if data exists
-        if (plant.wikiSummary.isNotEmpty()) {
-            tvWikiSummary.text = plant.wikiSummary
-            tvWikiSummary.setTypeface(null, android.graphics.Typeface.NORMAL)
-            tvWikiSummary.setTextColor(resources.getColor(android.R.color.black, theme))
-            tvWikiLink.visibility = View.VISIBLE
-            
-            // Note: Use a network imaging library like Coil or Glide here to pull wikiImageURL
-            if (plant.wikiImageURL.isNotEmpty()) {
-                ivWikiImage.visibility = View.VISIBLE
-            }
-        }
-    }
-
     private fun setupListeners() {
-        btnBack.setOnClickListener { finish() }
+        binding.btnBack.setOnClickListener { closeScreen() }
 
-        btnDelete.setOnClickListener {
-            if (!isSaving) showDeleteConfirmation()
+        binding.btnDeleteCollection.setOnClickListener {
+            showDeleteConfirmation()
         }
 
-        btnUpdate.setOnClickListener {
-            handleUpdate()
+        binding.btnUpdate.setOnClickListener {
+            val nickname = binding.etNickname.text.toString()
+            val notes = binding.etNotes.text.toString()
+            presenter.updatePlantDetails(nickname, notes)
         }
 
-        // Monitors both input fields to toggle the "Update Details" button activity state
         val textWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                checkChanges()
+                presenter.onInputFieldsChanged(
+                    binding.etNickname.text.toString(),
+                    binding.etNotes.text.toString()
+                )
             }
             override fun afterTextChanged(s: Editable?) {}
         }
-        etNickname.addTextChangedListener(textWatcher)
-        etNotes.addTextChangedListener(textWatcher)
-    }
-
-    private fun checkChanges() {
-        val hasChanges = etNickname.text.toString() != plant.nickname || 
-                         etNotes.text.toString() != plant.notes
-        btnUpdate.isEnabled = hasChanges && !isSaving
-    }
-
-    private fun handleUpdate() {
-        isSaving = true
-        checkChanges()
-        btnUpdate.text = "Updating..."
-
-        try {
-            // Apply the mutated values directly to your model
-            plant.nickname = etNickname.text.toString()
-            plant.notes = etNotes.text.toString()
-
-            // TODO: Call your app's background save/sync utility layer here
-            // e.g., StorageRepository.updatePlant(plant)
-
-            Snackbar.make(findViewById(R.id.scrollView), "Changes saved successfully", Snackbar.LENGTH_SHORT).show()
-            setupActionBarTitle() 
-        } catch (e: Exception) {
-            showErrorDialog("Update failed: ${e.message}")
-        } finally {
-            isSaving = false
-            btnUpdate.text = "Update Details"
-            checkChanges()
-        }
+        binding.etNickname.addTextChangedListener(textWatcher)
+        binding.etNotes.addTextChangedListener(textWatcher)
     }
 
     private fun showDeleteConfirmation() {
@@ -177,25 +87,75 @@ class PlantDetailsActivity : AppCompatActivity() {
             .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
             .setPositiveButton("Delete") { dialog, _ ->
                 dialog.dismiss()
-                // TODO: Wire up your database/file deletion sequence here
-                Toast.makeText(this, "Plant removed from collection", Toast.LENGTH_SHORT).show()
-                finish()
+                presenter.deletePlant()
             }
             .show()
     }
 
-    private fun showErrorDialog(message: String) {
+    // --- MVP View Architecture Realization Hooks ---
+
+    override fun populatePlantDetails(plant: PlantResult) {
+        binding.etNickname.setText(plant.nickname)
+        binding.etNotes.setText(plant.notes)
+
+        addInfoRow("Scientific Name", plant.scientificName)
+        addInfoRow("Authorship", plant.authorship)
+        addInfoRow("Family", plant.family)
+        
+        if (plant.commonNames.isNotEmpty()) {
+            addInfoRow("Common Names", plant.commonNames.joinToString(", "))
+        }
+
+        if (plant.imagePaths.isNotEmpty()) {
+            val file = File(plant.imagePaths[0])
+            if (file.exists()) {
+                binding.plantCollageImage.setImageURI(Uri.fromFile(file))
+            }
+        }
+
+        if (plant.wikiSummary.isNotEmpty()) {
+            binding.tvWikiSummary.text = plant.wikiSummary
+            binding.tvWikiLink.visibility = View.VISIBLE
+            
+            if (plant.wikiImageURL.isNotEmpty()) {
+                binding.wikiImage.visibility = View.VISIBLE
+                // Implement your image loader (Glide/Coil) setup here if needed
+            }
+        }
+    }
+
+    override fun updateActionBarTitle(nickname: String) {
+        supportActionBar?.title = if (nickname.isBlank()) "Plant Details" else "$nickname's Details"
+    }
+
+    override fun updateSaveButtonState(isSaving: Boolean, text: String) {
+        binding.btnUpdate.isEnabled = isSaving
+        binding.btnUpdate.text = text
+    }
+
+    override fun showSuccessMessage(message: String) {
+        // Safe check using root layout identifier view bounding bindings
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+    }
+
+    override fun showErrorDialog(message: String) {
         AlertDialog.Builder(this)
             .setTitle("Error")
             .setMessage(message)
-            .setPositiveButton("Dismiss") { dialog: android.content.DialogInterface, _ ->
-                dialog.dismiss()
-            }
+            .setPositiveButton("Dismiss") { dialog, _ -> dialog.dismiss() }
             .show()
     }
 
+    override fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun closeScreen() {
+        finish()
+    }
+
     private fun addInfoRow(title: String, value: String) {
-        val view = layoutInflater.inflate(android.R.layout.simple_list_item_2, infoContainer, false)
+        val view = layoutInflater.inflate(android.R.layout.simple_list_item_2, binding.infoContainer, false)
         val text1 = view.findViewById<TextView>(android.R.id.text1)
         val text2 = view.findViewById<TextView>(android.R.id.text2)
         
@@ -206,11 +166,16 @@ class PlantDetailsActivity : AppCompatActivity() {
         text2.text = value
         text2.textSize = 16f
         
-        infoContainer.addView(view)
+        binding.infoContainer.addView(view)
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        finish()
+        closeScreen()
         return true
+    }
+
+    override fun onDestroy() {
+        presenter.detachView()
+        super.onDestroy()
     }
 }
