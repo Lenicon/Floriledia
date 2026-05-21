@@ -66,6 +66,11 @@ class LoginActivity : Activity(), LoginContract.View {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
+    override fun navigateToRegister() {
+        val intent = Intent(this, RegisterActivity::class.java)
+        startActivity(intent)
+    }
+
     override fun navigateToMain() {
         Toast.makeText(this, "Welcome back!", Toast.LENGTH_SHORT).show()
         val intent = Intent(this, FlorilegiumActivity::class.java)
