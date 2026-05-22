@@ -18,28 +18,36 @@ class AccountPresenter(
     private val presenterScope = CoroutineScope(Dispatchers.Main + presenterJob)
 
     override fun loadUserData() {
-        val (username, email, _) = repository.getSavedUser()
-        val (scanCount, savedCount) = repository.getMetrics()
+        presenterScope.launch {
+            // Fetch layout details out of shared preferences memory storage
+            val (username, email, _) = repository.getSavedUser()
+            val (scanCount, _) = repository.getMetrics()
 
-        view?.displayUserData(
-            username ?: "Unknown Botanist",
-            email ?: "No email associated",
-            scanCount,
-            savedCount
-        )
+            // DYNAMIC CALCULATION: Count actual entries inside the files sandbox partition
+            val savedPlantsCount = withContext(Dispatchers.IO) {
+                StorageService.getAllSavedPlants().size
+            }
+
+            view?.displayUserData(
+                username ?: "Unknown Botanist",
+                email ?: "No email associated",
+                scanCount,
+                savedPlantsCount
+            )
+        }
+    }
+
+    override fun incrementScanCount() {
+        // Increments your metrics storage record anytime a scan completes successfully
+        repository.incrementScans()
     }
 
     override fun logout() {
         presenterScope.launch {
-            // 1. Wipe the global file sandbox pointers and memory caches back to guest defaults
             withContext(Dispatchers.IO) {
                 StorageService.logout()
             }
-            
-            // 2. Clear the shared preferences user session authentication tokens
             repository.clearSession()
-            
-            // 3. Inform the view to clean up layout interfaces and route back to login interface
             view?.showMessage("Logged out successfully")
             view?.navigateToLogin()
         }
@@ -47,6 +55,6 @@ class AccountPresenter(
 
     override fun detachView() {
         view = null
-        presenterJob.cancel() // Cancel ongoing coroutines to prevent memory leaks or crashes on close
+        presenterJob.cancel()
     }
 }

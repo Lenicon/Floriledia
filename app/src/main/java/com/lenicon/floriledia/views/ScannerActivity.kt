@@ -69,7 +69,7 @@ class ScannerActivity : AppCompatActivity(), ScannerContract.View {
         initViews()
 
         // 2. Attach presenter safely
-        presenter = ScannerPresenter(lifecycleScope, filesDir, cacheDir)
+        presenter = ScannerPresenter(lifecycleScope, filesDir, cacheDir, UserPreferences(applicationContext))
         presenter.attachView(this)
 
         NavigationHelper.initBottomNavigation(this, R.id.nav_scanner)

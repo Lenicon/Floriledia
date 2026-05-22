@@ -1,6 +1,5 @@
 package com.lenicon.floriledia.views
 
-
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -12,7 +11,6 @@ import com.lenicon.floriledia.models.UserPreferences
 import com.lenicon.floriledia.presenters.AccountPresenter
 import com.lenicon.floriledia.utils.NavigationHelper
 import androidx.appcompat.app.AppCompatActivity
-
 
 class AccountActivity : AppCompatActivity(), AccountContract.View {
 
@@ -28,24 +26,25 @@ class AccountActivity : AppCompatActivity(), AccountContract.View {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_account)
 
-        // Bind View ID References
         tvUsername = findViewById(R.id.tv_account_username)
         tvEmail = findViewById(R.id.tv_account_email)
         tvScanCount = findViewById(R.id.tv_scan_count)
         tvSavedCount = findViewById(R.id.tv_saved_count)
         btnLogout = findViewById(R.id.btn_logout)
 
-        // Presenter Binding Injection
         presenter = AccountPresenter(this, UserPreferences(applicationContext))
 
         btnLogout.setOnClickListener {
             presenter.logout()
         }
 
-        // Initialize display content setup
-        presenter.loadUserData()
-
         NavigationHelper.initBottomNavigation(this, R.id.nav_account)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh values whenever the view layout becomes active on the glass screen surface
+        presenter.loadUserData()
     }
 
     override fun displayUserData(username: String, email: String, scanCount: Int, savedCount: Int) {
@@ -61,7 +60,6 @@ class AccountActivity : AppCompatActivity(), AccountContract.View {
 
     override fun navigateToLogin() {
         val intent = Intent(this, LoginActivity::class.java).apply {
-            // Drop historical execution stacks completely so back-navigation can't re-enter
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)

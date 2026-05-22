@@ -1,7 +1,5 @@
 package com.lenicon.floriledia.contracts
 
-import com.lenicon.floriledia.models.UserPreferences
-
 interface AccountContract {
     interface View {
         fun displayUserData(username: String, email: String, scanCount: Int, savedCount: Int)
@@ -11,6 +9,7 @@ interface AccountContract {
 
     interface Presenter {
         fun loadUserData()
+        fun incrementScanCount()
         fun logout()
         fun detachView()
     }

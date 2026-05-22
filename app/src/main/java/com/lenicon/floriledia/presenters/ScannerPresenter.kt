@@ -4,6 +4,7 @@ import android.net.Uri
 import com.lenicon.floriledia.contracts.ScannerContract
 import com.lenicon.floriledia.models.PlantPhoto
 import com.lenicon.floriledia.services.PlantApiService
+import com.lenicon.floriledia.models.UserPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
@@ -11,7 +12,8 @@ import java.io.File
 class ScannerPresenter(
     private val scope: CoroutineScope,
     private val filesDir: File,
-    private val cacheDir: File
+    private val cacheDir: File,
+    private val userPrefs: UserPreferences
 ) : ScannerContract.Presenter {
 
     private var view: ScannerContract.View? = null
@@ -83,6 +85,8 @@ class ScannerPresenter(
                 // 1. Identify your plant specimen structure from your backend endpoint
                 val result = PlantApiService.identifyPlant(selectedPhotos)
                 
+                userPrefs.incrementScans()
+
                 // 2. Fetch missing Wikipedia summary details sequentially before shifting views
                 if (result.scientificName.isNotBlank()) {
                     val wikiData = com.lenicon.floriledia.services.WikipediaService.fetchWiki(result.scientificName)
