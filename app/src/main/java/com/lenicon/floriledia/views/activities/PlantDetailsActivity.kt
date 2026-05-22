@@ -1,4 +1,4 @@
-package com.lenicon.floriledia.views
+package com.lenicon.floriledia.views.activities
 
 import android.content.Intent
 import android.net.Uri
@@ -18,7 +18,8 @@ import com.lenicon.floriledia.contracts.PlantDetailsContract
 import com.lenicon.floriledia.databinding.ActivityPlantDetailsBinding
 import com.lenicon.floriledia.models.PlantResult
 import com.lenicon.floriledia.presenters.PlantDetailsPresenter
-import java.io.File
+import com.lenicon.floriledia.views.components.CollageLayout
+import com.lenicon.floriledia.views.dialogs.FullImageViewerDialog
 
 class PlantDetailsActivity : AppCompatActivity(), PlantDetailsContract.View {
 
@@ -43,7 +44,6 @@ class PlantDetailsActivity : AppCompatActivity(), PlantDetailsContract.View {
         setupActionBar()
         setupListeners()
         
-        // Let the presenter take over data orchestration
         presenter.initializePlant(parcelablePlant)
     }
 
@@ -92,8 +92,6 @@ class PlantDetailsActivity : AppCompatActivity(), PlantDetailsContract.View {
             .show()
     }
 
-    // --- MVP View Architecture Realization Hooks ---
-
     override fun populatePlantDetails(plant: PlantResult) {
         binding.etNickname.setText(plant.nickname)
         binding.etNotes.setText(plant.notes)
@@ -106,12 +104,8 @@ class PlantDetailsActivity : AppCompatActivity(), PlantDetailsContract.View {
             addInfoRow("Common Names", plant.commonNames.joinToString(", "))
         }
 
-        if (plant.imagePaths.isNotEmpty()) {
-            val file = File(plant.imagePaths[0])
-            if (file.exists()) {
-                binding.plantCollageImage.setImageURI(Uri.fromFile(file))
-            }
-        }
+        // Delegate the complex image collage rendering straight to your custom layout view
+        buildPlantCollage(plant.imagePaths)
 
         if (plant.wikiSummary.isNotEmpty()) {
             binding.tvWikiSummary.text = plant.wikiSummary
@@ -119,8 +113,20 @@ class PlantDetailsActivity : AppCompatActivity(), PlantDetailsContract.View {
             
             if (plant.wikiImageURL.isNotEmpty()) {
                 binding.wikiImage.visibility = View.VISIBLE
-                // Implement your image loader (Glide/Coil) setup here if needed
             }
+        }
+    }
+
+    private fun buildPlantCollage(paths: List<String>) {
+        val collageView = binding.plantCollageView
+
+        collageView.setImages(paths)
+
+        collageView.onImageClickListener = { allPaths, selectedIndex ->
+            FullImageViewerDialog(allPaths, selectedIndex).show(
+                supportFragmentManager, 
+                "image_viewer"
+            )
         }
     }
 
@@ -134,7 +140,6 @@ class PlantDetailsActivity : AppCompatActivity(), PlantDetailsContract.View {
     }
 
     override fun showSuccessMessage(message: String) {
-        // Safe check using root layout identifier view bounding bindings
         Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
     }
 

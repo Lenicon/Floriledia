@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground">
 
-    <!-- Scrollable content area -->
+
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
@@ -19,20 +19,17 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Simple Banner Image View as a placeholder for the Collage -->
-            <ImageView
-                android:id="@+id/plantCollageImage"
+            <com.lenicon.floriledia.views.CollageLayout
+                android:id="@+id/plant_collage_view"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                android:background="#FFE0E0E0"
-                android:scaleType="centerCrop"
-                android:contentDescription="Plant images collage" />
+                android:background="#00000000" />
 
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="16dp" />
 
-            <!-- Nickname Input Field -->
+            
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -50,16 +47,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="16dp" />
 
-            <!-- Plant Info Container (Scientific details) -->
+            
             <LinearLayout
                 android:id="@+id/infoContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-                <!-- Programmatically populated or defined statically below -->
             </LinearLayout>
 
-            <!-- Notes Multi-line Input Field -->
+            
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -80,7 +76,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="20dp" />
 
-            <!-- Wikipedia Card Layout -->
+            
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/wikiCard"
                 android:layout_width="match_parent"
@@ -142,7 +138,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="16dp" />
 
-            <!-- Delete Collection Button -->
+            
             <Button
                 android:id="@+id/btnDeleteCollection"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -156,7 +152,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Bottom Actions Layout fixed at screen base -->
+    
     <LinearLayout
         android:id="@+id/bottomBar"
         android:layout_width="match_parent"

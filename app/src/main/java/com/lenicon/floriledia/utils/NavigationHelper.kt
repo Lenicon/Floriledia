@@ -4,48 +4,42 @@ import android.app.Activity
 import android.content.Intent
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.lenicon.floriledia.R
-import com.lenicon.floriledia.views.AccountActivity
-import com.lenicon.floriledia.views.FlorilegiumActivity
-import com.lenicon.floriledia.views.ScannerActivity
+import com.lenicon.floriledia.views.activities.AccountActivity
+import com.lenicon.floriledia.views.activities.FlorilegiumActivity
+import com.lenicon.floriledia.views.activities.ScannerActivity
 
 object NavigationHelper {
 
     fun initBottomNavigation(activity: Activity, currentItemId: Int) {
-        val bottomNavigation = activity.findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        
-        // Highlight the active tab icon on launch
+        val bottomNavigation = activity.findViewById<BottomNavigationView>(R.id.bottom_navigation) ?: return
+
+        // Step 1: Force state configuration matching without refiring execution handlers
         bottomNavigation.selectedItemId = currentItemId
 
-        bottomNavigation.setOnItemSelectedListener { item ->
-            if (item.itemId == currentItemId) return@setOnItemSelectedListener true
+        // Step 2: Handle routing transitions cleanly
+        bottomNavigation.setOn someItemClickAction@{ item ->
+            if (item.itemId == currentItemId) return@someItemClickAction true
 
-            var targetIntent: Intent? = null
-
-            when (item.itemId) {
-                R.id.nav_florilegium -> {
-                    targetIntent = Intent(activity, FlorilegiumActivity::class.java)
-                }
-                R.id.nav_scanner -> {
-                    // Replicating your explicit storage load requirement from Flutter
-                    // StorageService.load(activity.applicationContext)
-                    
-                    targetIntent = Intent(activity, ScannerActivity::class.java)
-                }
-                R.id.nav_account -> {
-                    targetIntent = Intent(activity, AccountActivity::class.java)
-                }
+            val targetIntent = when (item.itemId) {
+                R.id.nav_florilegium -> Intent(activity, FlorilegiumActivity::class.java)
+                R.id.nav_scanner -> Intent(activity, ScannerActivity::class.java)
+                R.id.nav_account -> Intent(activity, AccountActivity::class.java)
+                else -> return@someItemClickAction false
             }
 
-            if (targetIntent != null) {
-                // Key trick: these flags keep from creating new duplicate screen activities
-                targetIntent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_NO_ANIMATION
-                activity.startActivity(targetIntent)
-                // Disable traditional transitions to imitate a smooth Flutter page-swap feel
-                activity.overridePendingTransition(0, 0)
-                true
+            // Kill intermediate entry animation lags entirely via intent processing structures
+            targetIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+            activity.startActivity(targetIntent)
+            
+            // Instantly sync finish context to avoid stacking historical activities
+            activity.finish()
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                activity.overrideActivityTransition(Activity.OVERRIDE_TRANSITION_CLOSE, 0, 0)
             } else {
-                false
+                @Suppress("DEPRECATION")
+                activity.overridePendingTransition(0, 0)
             }
+            true
         }
     }
 }

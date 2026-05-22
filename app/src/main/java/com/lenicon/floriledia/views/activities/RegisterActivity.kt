@@ -1,4 +1,4 @@
-package com.lenicon.floriledia.views
+package com.lenicon.floriledia.views.activities
 
 import android.app.Activity
 import android.os.Bundle

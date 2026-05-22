@@ -1,4 +1,4 @@
-package com.lenicon.floriledia.views
+package com.lenicon.floriledia.views.activities
 
 import android.content.Intent
 import android.net.Uri
@@ -86,8 +86,15 @@ class ResultScreenActivity : AppCompatActivity(), ResultContract.View {
     }
     
     private fun buildDynamicCollage(paths: List<String>) {
-        // Here you can inflate dynamic views based on item count
-        // or hook into an image viewing dialog using your full view methods.
+        val collageView = binding.plantCollageView
+        collageView.setImages(paths)
+        collageView.onImageClickListener = { allPaths, selectedIndex ->
+            openFullImage(allPaths, selectedIndex)
+        }
+    }
+
+    private fun openFullImage(paths: List<String>, initialIndex: Int) {
+        FullImageViewerDialog(paths, initialIndex).show(supportFragmentManager, "image_viewer")
     }
     
     override fun showMessage(message: String) {

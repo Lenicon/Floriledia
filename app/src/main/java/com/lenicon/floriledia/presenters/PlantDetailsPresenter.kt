@@ -43,11 +43,9 @@ class PlantDetailsPresenter(
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // Mutate local memory reference variables
                 plant.nickname = newNickname
                 plant.notes = newNotes
 
-                // Commit mutated values across active storage files
                 StorageService.updatePlant(plant)
 
                 withContext(Dispatchers.Main) {

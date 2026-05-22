@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_florilegium"
-        android:icon="@android:drawable/btn_star_big_on"
+        android:icon="@android:drawable/ic_menu_gallery"
         android:title="Florilegium" />
     <item
         android:id="@+id/nav_scanner"
@@ -10,6 +10,6 @@
         android:title="Scanner" />
     <item
         android:id="@+id/nav_account"
-        android:icon="@android:drawable/ic_menu_myplaces"
+        android:icon="@android:drawable/ic_menu_manage"
         android:title="Account" />
 </menu>

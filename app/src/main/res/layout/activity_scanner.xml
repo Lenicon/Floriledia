@@ -18,12 +18,15 @@
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="72dp"
         android:layout_alignParentBottom="true"
-        android:background="@android:color/white"
-        android:elevation="20dp"
-        app:elevation="20dp"
-        app:menu="@menu/bottom_nav_menu" />
+        android:background="@color/white"
+        app:elevation="8dp"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemIconTint="@color/nav_item_colors"
+        app:itemTextColor="@color/nav_item_colors"
+        app:labelVisibilityMode="labeled"
+        app:itemRippleColor="@color/pastel_soft_yellow_ripple" />
 
     <!-- Action Button is anchored safely ABOVE the navigation bar container -->
     <FrameLayout

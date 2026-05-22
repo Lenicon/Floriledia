@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Backgrounds and Base Layers -->
+    <color name="pastel_bg_blue">#F0F4F8</color> <!-- Soft Ice Blue for screens -->
+    <color name="white">#FFFFFF</color>
+
+    <!-- Navigation States -->
+    <color name="pastel_active_blue">#4A7C59</color> <!-- For active tracking indicators -->
+    <color name="pastel_slate_blue">#4A5A6A</color> <!-- High contrast text/icon color -->
+    <color name="pastel_muted_gray">#A0AAB5</color>  <!-- Neutral unselected tabs -->
+    
+    <!-- Highlights and Brand Signatures -->
+    <color name="pastel_accent_yellow">#FFF275</color> <!-- Creamy Lemon Yellow for badges/indicators -->
+    <color name="pastel_soft_yellow_ripple">#33FFF275</color> <!-- Translucent ripple selection touch feedback -->
+
+    <color name="black">#000000</color>
 </resources>
