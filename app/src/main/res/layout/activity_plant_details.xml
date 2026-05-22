@@ -178,6 +178,6 @@
             android:text="Discard"
             app:strokeColor="@color/pastel_slate_blue"
             android:textColor="@color/pastel_slate_blue"
-            android:layout_ someStart="8dp"/>
+            android:layout_marginStart="8dp"/>
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

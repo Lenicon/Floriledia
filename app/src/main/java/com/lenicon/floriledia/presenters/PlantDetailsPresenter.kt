@@ -83,7 +83,7 @@ class PlantDetailsPresenter(
     override fun confirmDeletion() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                StorageService.deletePlant(plantResult)
+                StorageService.deletePlant(plantResult.id)
                 withContext(Dispatchers.Main) {
                     view?.showMessage("Specimen removed from database.")
                     view?.navigateBack()

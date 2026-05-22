@@ -148,8 +148,8 @@ class ScannerActivity : AppCompatActivity(), ScannerContract.View {
     }
 
     override fun openResultScreen(plantResult: PlantResult) {
-        val intent = Intent(context, PlantDetailsActivity::class.java).apply {
-            putExtra("extra_plant_result", newScannedPlant)
+        val intent = Intent(this, PlantDetailsActivity::class.java).apply {
+            putExtra("extra_plant_result", plantResult)
             putExtra("extra_view_mode", PlantDetailsContract.Mode.RESULT.name)
         }
         startActivity(intent)

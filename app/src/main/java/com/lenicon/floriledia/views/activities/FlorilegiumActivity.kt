@@ -36,14 +36,12 @@ class FlorilegiumActivity : AppCompatActivity(), FlorilegiumContract.View {
         
         NavigationHelper.initBottomNavigation(this, R.id.nav_florilegium)
 
-        // Begin collecting active profile dataset changes
         presenter.startObservingCollection()
     }
 
     private fun setupRecyclerView() {
         binding.rvPlants.layoutManager = GridLayoutManager(this, 2)
         
-        // Pass item selection events straight up to the presenter interaction hub
         adapter = PlantAdapter(emptyList()) { plant ->
             presenter.onPlantClicked(plant)
         }
@@ -64,10 +62,8 @@ class FlorilegiumActivity : AppCompatActivity(), FlorilegiumContract.View {
         }
     }
 
-    // --- MVP View Implementations ---
 
     override fun showPlants(plants: List<PlantResult>) {
-        // Assume your PlantAdapter supports dataset replacement cleanly
         adapter?.updateData(plants)
     }
 
@@ -84,8 +80,8 @@ class FlorilegiumActivity : AppCompatActivity(), FlorilegiumContract.View {
     }
 
     override fun navigateToDetails(plant: PlantResult) {
-        val intent = Intent(context, PlantDetailsActivity::class.java).apply {
-            putExtra("extra_plant_result", existingSavedPlant)
+        val intent = Intent(this, PlantDetailsActivity::class.java).apply {
+            putExtra("extra_plant_result", plant)
             putExtra("extra_view_mode", PlantDetailsContract.Mode.DETAILS.name)
         }
         startActivity(intent)
