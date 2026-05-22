@@ -3,22 +3,26 @@ package com.lenicon.floriledia.contracts
 import com.lenicon.floriledia.models.PlantResult
 
 interface PlantDetailsContract {
+    enum class Mode { RESULT, DETAILS }
+
     interface View {
-        fun populatePlantDetails(plant: PlantResult)
-        fun updateActionBarTitle(nickname: String)
-        fun updateSaveButtonState(isSaving: Boolean, text: String)
-        fun showSuccessMessage(message: String)
-        fun showErrorDialog(message: String)
-        fun showToast(message: String)
-        fun closeScreen()
+        fun showPlantDetails(result: PlantResult)
+        fun setupUiForMode(mode: Mode)
+        fun updatePrimaryButtonState(isEnabled: Boolean, text: String)
+        fun showDeleteConfirmationDialog()
+        fun showMessage(message: String)
+        fun showError(error: String)
+        fun navigateBack()
+        fun openWikipediaLink(url: String)
     }
 
     interface Presenter {
         fun attachView(view: View)
         fun detachView()
-        fun initializePlant(plant: PlantResult)
-        fun onInputFieldsChanged(currentNickname: String, currentNotes: String)
-        fun updatePlantDetails(newNickname: String, newNotes: String)
-        fun deletePlant()
+        fun handlePrimaryAction(nickname: String, notes: String)
+        fun handleSecondaryAction()
+        fun handleDeleteRequested()
+        fun confirmDeletion()
+        fun onWikipediaClicked()
     }
 }

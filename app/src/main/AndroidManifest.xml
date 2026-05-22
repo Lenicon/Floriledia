@@ -38,7 +38,7 @@
         </provider>
         
         <activity 
-            android:name=".views.LoginActivity"
+            android:name=".views.activities.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -46,12 +46,12 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".views.RegisterActivity" android:exported="false" />
-        <activity android:name=".views.FlorilegiumActivity" android:exported="false" />
-        <activity android:name=".views.ScannerActivity" android:exported="false" />
-        <activity android:name=".views.AccountActivity" android:exported="false" />
-        <activity android:name=".views.ResultScreenActivity" android:exported="false" />
-        <activity android:name=".views.PlantDetailsActivity" android:exported="false" />
+        <activity android:name=".views.activities.RegisterActivity" android:exported="false" />
+        <activity android:name=".views.activities.FlorilegiumActivity" android:exported="false" />
+        <activity android:name=".views.activities.ScannerActivity" android:exported="false" />
+        <activity android:name=".views.activities.AccountActivity" android:exported="false" />
+        <activity android:name=".views.activities.ResultScreenActivity" android:exported="false" />
+        <activity android:name=".views.activities.PlantDetailsActivity" android:exported="false" />
 
     </application>
 

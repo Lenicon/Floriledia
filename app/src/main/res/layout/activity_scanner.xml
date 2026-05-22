@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/pastel_bg_blue">
 
     <TextView
         android:id="@+id/tvPhotoCount"
@@ -10,6 +11,7 @@
         android:layout_height="wrap_content"
         android:padding="16dp"
         android:text="Photos: 0 / 5 (same plant's organs)"
+        android:textColor="@color/pastel_slate_blue"
         android:textSize="16sp"
         android:textStyle="bold"
         android:layout_alignParentTop="true" />
@@ -21,23 +23,25 @@
         android:layout_height="72dp"
         android:layout_alignParentBottom="true"
         android:background="@color/white"
-        app:elevation="8dp"
+        app:elevation="16dp"
         app:menu="@menu/bottom_nav_menu"
         app:itemIconTint="@color/nav_item_colors"
         app:itemTextColor="@color/nav_item_colors"
         app:labelVisibilityMode="labeled"
         app:itemRippleColor="@color/pastel_soft_yellow_ripple" />
 
-    <!-- Action Button is anchored safely ABOVE the navigation bar container -->
-    <FrameLayout
+    <!-- Action Button upgraded to a rounded MaterialCardView -->
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/btnIdentify"
         android:layout_width="match_parent"
         android:layout_height="54dp"
         android:layout_above="@id/bottom_navigation"
         android:layout_marginHorizontal="20dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="16dp"
         android:layout_marginTop="10dp"
-        android:background="#FFCCCCCC" 
+        app:cardBackgroundColor="@color/pastel_slate_blue"
+        app:cardCornerRadius="27dp"
+        app:cardElevation="4dp"
         android:clickable="false"
         android:focusable="true">
 
@@ -55,20 +59,20 @@
                 android:layout_height="20dp"
                 android:layout_marginEnd="12dp"
                 android:visibility="gone"
-                android:indeterminateTint="@android:color/white" />
+                android:indeterminateTint="@color/pastel_accent_yellow" />
 
             <TextView
                 android:id="@+id/tvButtonText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Identify Plant"
-                android:textColor="@android:color/white"
+                android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
         </LinearLayout>
-    </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
 
-    <!-- Photo Management Grid (Bounded precisely between top text and the identify button) -->
+    <!-- Photo Management Grid -->
     <GridView
         android:id="@+id/gvPhotos"
         android:layout_width="match_parent"

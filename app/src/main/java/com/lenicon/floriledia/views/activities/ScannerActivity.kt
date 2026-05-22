@@ -24,6 +24,7 @@ import com.lenicon.floriledia.presenters.ScannerPresenter
 import com.lenicon.floriledia.utils.NavigationHelper
 import java.io.File
 import java.io.FileOutputStream
+import com.lenicon.floriledia.contracts.PlantDetailsContract
 
 
 class ScannerActivity : AppCompatActivity(), ScannerContract.View {
@@ -147,8 +148,9 @@ class ScannerActivity : AppCompatActivity(), ScannerContract.View {
     }
 
     override fun openResultScreen(plantResult: PlantResult) {
-        val intent = Intent(this, ResultScreenActivity::class.java).apply {
-            putExtra("extra_plant_result", plantResult)
+        val intent = Intent(context, PlantDetailsActivity::class.java).apply {
+            putExtra("extra_plant_result", newScannedPlant)
+            putExtra("extra_view_mode", PlantDetailsContract.Mode.RESULT.name)
         }
         startActivity(intent)
     }

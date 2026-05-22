@@ -14,6 +14,7 @@ import com.lenicon.floriledia.models.PlantResult
 import com.lenicon.floriledia.contracts.ResultContract
 import com.lenicon.floriledia.presenters.ResultPresenter
 import androidx.core.content.IntentCompat
+import com.lenicon.floriledia.views.dialogs.FullImageViewerDialog
 
 
 class ResultScreenActivity : AppCompatActivity(), ResultContract.View {

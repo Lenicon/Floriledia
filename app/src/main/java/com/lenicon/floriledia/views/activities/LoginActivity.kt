@@ -13,7 +13,6 @@ import com.lenicon.floriledia.contracts.LoginContract
 import com.lenicon.floriledia.models.UserPreferences
 import com.lenicon.floriledia.presenters.LoginPresenter
 
-// FIX: Implement LoginContract.View to let the presenter control UI transitions safely
 class LoginActivity : Activity(), LoginContract.View {
 
     private lateinit var presenter: LoginPresenter
@@ -22,15 +21,10 @@ class LoginActivity : Activity(), LoginContract.View {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 1. Initialize the presenter with its dependencies
-        val userPrefs = UserPreferences(applicationContext)
-        presenter = LoginPresenter(this, userPrefs)
-        
-        // 2. Delegate the auto-login session check to the presenter
-        presenter.checkUserSession()
-
+        // Step 1: Inflate layout structure instantly to avoid window registration context leaks
         setContentView(R.layout.activity_login)
 
+        // Step 2: Initialize views so they are ready for any immediate presenter callbacks
         progressBar = findViewById(R.id.progress_bar)
         
         val etEmail = findViewById<EditText>(R.id.et_login_email) 
@@ -38,11 +32,10 @@ class LoginActivity : Activity(), LoginContract.View {
         val btnLogin = findViewById<Button>(R.id.btn_login_submit)
         val btnToRegister = findViewById<Button>(R.id.btn_to_register)
 
+        // Step 3: Set up button click action handlers
         btnLogin.setOnClickListener {
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString()
-
-            // 3. Hand over login responsibility directly to the presenter architecture flow
             presenter.login(email, password)
         }
 
@@ -50,6 +43,13 @@ class LoginActivity : Activity(), LoginContract.View {
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
         }
+
+        // Step 4: Initialize presenter dependencies now that the view targets exist safely
+        val userPrefs = UserPreferences(applicationContext)
+        presenter = LoginPresenter(this, userPrefs)
+        
+        // Step 5: Safely check session state as the final step
+        presenter.checkUserSession()
     }
 
     // --- MVP View Contract Interface Implementations ---
@@ -75,11 +75,10 @@ class LoginActivity : Activity(), LoginContract.View {
         Toast.makeText(this, "Welcome back!", Toast.LENGTH_SHORT).show()
         val intent = Intent(this, FlorilegiumActivity::class.java)
         startActivity(intent)
-        finish() // Terminate this activity state instance so back buttons won't reopen it
+        finish() 
     }
 
     override fun onDestroy() {
-        // 4. Clean up background jobs to block asynchronous memory leakage issues
         presenter.detachView()
         super.onDestroy()
     }

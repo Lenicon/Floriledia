@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.lenicon.floriledia.R
 import com.lenicon.floriledia.adapters.PlantAdapter
 import com.lenicon.floriledia.contracts.FlorilegiumContract
+import com.lenicon.floriledia.contracts.PlantDetailsContract
 import com.lenicon.floriledia.databinding.ActivityFlorilegiumBinding
 import com.lenicon.floriledia.models.PlantResult
 import com.lenicon.floriledia.presenters.FlorilegiumPresenter
@@ -83,8 +84,9 @@ class FlorilegiumActivity : AppCompatActivity(), FlorilegiumContract.View {
     }
 
     override fun navigateToDetails(plant: PlantResult) {
-        val intent = Intent(this, PlantDetailsActivity::class.java).apply {
-            putExtra("PLANT_EXTRA", plant)
+        val intent = Intent(context, PlantDetailsActivity::class.java).apply {
+            putExtra("extra_plant_result", existingSavedPlant)
+            putExtra("extra_view_mode", PlantDetailsContract.Mode.DETAILS.name)
         }
         startActivity(intent)
     }

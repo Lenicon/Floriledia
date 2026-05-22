@@ -9,78 +9,99 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class PlantDetailsPresenter(
+    private var plantResult: PlantResult,
+    private val mode: PlantDetailsContract.Mode,
     private val lifecycleScope: LifecycleCoroutineScope
 ) : PlantDetailsContract.Presenter {
 
     private var view: PlantDetailsContract.View? = null
-    private lateinit var plant: PlantResult
     private var isProcessing = false
 
     override fun attachView(view: PlantDetailsContract.View) {
         this.view = view
+        this.view?.setupUiForMode(mode)
+        this.view?.showPlantDetails(plantResult)
     }
 
     override fun detachView() {
         this.view = null
     }
 
-    override fun initializePlant(plant: PlantResult) {
-        this.plant = plant
-        view?.populatePlantDetails(plant)
-        view?.updateActionBarTitle(plant.nickname)
-    }
-
-    override fun onInputFieldsChanged(currentNickname: String, currentNotes: String) {
-        val hasChanges = currentNickname != plant.nickname || currentNotes != plant.notes
-        val buttonText = if (isProcessing) "Updating..." else "Update Details"
-        view?.updateSaveButtonState(hasChanges && !isProcessing, buttonText)
-    }
-
-    override fun updatePlantDetails(newNickname: String, newNotes: String) {
+    override fun handlePrimaryAction(nickname: String, notes: String) {
         if (isProcessing) return
         isProcessing = true
-        view?.updateSaveButtonState(false, "Updating...")
+
+        val pendingText = if (mode == PlantDetailsContract.Mode.RESULT) "Saving..." else "Updating..."
+        view?.updatePrimaryButtonState(false, pendingText)
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                plant.nickname = newNickname
-                plant.notes = newNotes
+                plantResult.nickname = nickname.ifBlank { "Unnamed Plant" }
+                plantResult.notes = notes
 
-                StorageService.updatePlant(plant)
+                if (mode == PlantDetailsContract.Mode.RESULT) {
+                    val permanentPaths = mutableListOf<String>()
+                    for (tempPath in plantResult.imagePaths) {
+                        if (tempPath.isNotBlank() && !StorageService.isSaved(tempPath)) {
+                            val targetPath = StorageService.saveImagePermanently(tempPath)
+                            StorageService.markAsSaved(targetPath)
+                            permanentPaths.add(targetPath)
+                        } else {
+                            permanentPaths.add(tempPath)
+                        }
+                    }
+                    plantResult.imagePaths = permanentPaths
+                    StorageService.savePlant(plantResult)
+                } else {
+                    StorageService.updatePlant(plantResult)
+                }
 
                 withContext(Dispatchers.Main) {
-                    view?.showSuccessMessage("Changes saved successfully")
-                    view?.updateActionBarTitle(plant.nickname)
-                    isProcessing = false
-                    onInputFieldsChanged(newNickname, newNotes)
+                    val feedback = if (mode == PlantDetailsContract.Mode.RESULT) "Saved successfully" else "Updated successfully"
+                    view?.showMessage(feedback)
+                    view?.navigateBack()
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    view?.showErrorDialog("Update failed: ${e.localizedMessage}")
+                    view?.showError("Execution failed: ${e.localizedMessage}")
                     isProcessing = false
-                    onInputFieldsChanged(newNickname, newNotes)
+                    val defaultText = if (mode == PlantDetailsContract.Mode.RESULT) "Save Plant" else "Update Details"
+                    view?.updatePrimaryButtonState(true, defaultText)
                 }
             }
         }
     }
 
-    override fun deletePlant() {
-        if (isProcessing) return
-        isProcessing = true
+    override fun handleSecondaryAction() {
+        view?.navigateBack()
+    }
 
+    override fun handleDeleteRequested() {
+        view?.showDeleteConfirmationDialog()
+    }
+
+    override fun confirmDeletion() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                StorageService.deletePlant(plant.id)
+                StorageService.deletePlant(plantResult)
                 withContext(Dispatchers.Main) {
-                    view?.showToast("Plant removed from collection")
-                    view?.closeScreen()
+                    view?.showMessage("Specimen removed from database.")
+                    view?.navigateBack()
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    view?.showErrorDialog("Deletion failed: ${e.localizedMessage}")
-                    isProcessing = false
+                    view?.showError("Unable to delete entry: ${e.localizedMessage}")
                 }
             }
+        }
+    }
+
+    override fun onWikipediaClicked() {
+        if (plantResult.scientificName.isNotBlank()) {
+            val query = plantResult.scientificName.replace(" ", "_")
+            view?.openWikipediaLink("https://en.wikipedia.org/wiki/$query")
+        } else {
+            view?.showMessage("Wikipedia link reference broken or missing.")
         }
     }
 }

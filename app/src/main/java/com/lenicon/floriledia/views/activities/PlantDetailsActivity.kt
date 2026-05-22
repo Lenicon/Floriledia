@@ -3,22 +3,17 @@ package com.lenicon.floriledia.views.activities
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.IntentCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.snackbar.Snackbar
-import com.lenicon.floriledia.R
-import com.lenicon.floriledia.contracts.PlantDetailsContract
+import com.bumptech.glide.Glide
 import com.lenicon.floriledia.databinding.ActivityPlantDetailsBinding
 import com.lenicon.floriledia.models.PlantResult
+import com.lenicon.floriledia.contracts.PlantDetailsContract
 import com.lenicon.floriledia.presenters.PlantDetailsPresenter
-import com.lenicon.floriledia.views.components.CollageLayout
 import com.lenicon.floriledia.views.dialogs.FullImageViewerDialog
 
 class PlantDetailsActivity : AppCompatActivity(), PlantDetailsContract.View {
@@ -31,152 +26,113 @@ class PlantDetailsActivity : AppCompatActivity(), PlantDetailsContract.View {
         binding = ActivityPlantDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        presenter = PlantDetailsPresenter(lifecycleScope)
+        val plantData = IntentCompat.getParcelableExtra(intent, "extra_plant_result", PlantResult::class.java)
+            ?: return finish()
+
+        val modeValue = intent.getStringExtra("extra_view_mode") ?: PlantDetailsContract.Mode.RESULT.name
+        val activeMode = PlantDetailsContract.Mode.valueOf(modeValue)
+
+        presenter = PlantDetailsPresenter(plantData, activeMode, lifecycleScope)
         presenter.attachView(this)
 
-        val parcelablePlant = IntentCompat.getParcelableExtra(intent, "PLANT_EXTRA", PlantResult::class.java)
-        if (parcelablePlant == null) {
-            showToast("Failed to load plant data")
-            finish()
-            return
-        }
-
-        setupActionBar()
-        setupListeners()
-        
-        presenter.initializePlant(parcelablePlant)
+        configureListeners()
     }
 
-    private fun setupActionBar() {
-        supportActionBar?.apply {
-            setDisplayHomeAsUpEnabled(true)
-        }
-    }
-
-    private fun setupListeners() {
-        binding.btnBack.setOnClickListener { closeScreen() }
-
-        binding.btnDeleteCollection.setOnClickListener {
-            showDeleteConfirmation()
-        }
-
-        binding.btnUpdate.setOnClickListener {
-            val nickname = binding.etNickname.text.toString()
-            val notes = binding.etNotes.text.toString()
-            presenter.updatePlantDetails(nickname, notes)
-        }
-
-        val textWatcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                presenter.onInputFieldsChanged(
-                    binding.etNickname.text.toString(),
-                    binding.etNotes.text.toString()
-                )
-            }
-            override fun afterTextChanged(s: Editable?) {}
-        }
-        binding.etNickname.addTextChangedListener(textWatcher)
-        binding.etNotes.addTextChangedListener(textWatcher)
-    }
-
-    private fun showDeleteConfirmation() {
-        AlertDialog.Builder(this)
-            .setTitle("Delete Plant?")
-            .setMessage("This will permanently remove this plant from your collection.")
-            .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
-            .setPositiveButton("Delete") { dialog, _ ->
-                dialog.dismiss()
-                presenter.deletePlant()
-            }
-            .show()
-    }
-
-    override fun populatePlantDetails(plant: PlantResult) {
-        binding.etNickname.setText(plant.nickname)
-        binding.etNotes.setText(plant.notes)
-
-        addInfoRow("Scientific Name", plant.scientificName)
-        addInfoRow("Authorship", plant.authorship)
-        addInfoRow("Family", plant.family)
-        
-        if (plant.commonNames.isNotEmpty()) {
-            addInfoRow("Common Names", plant.commonNames.joinToString(", "))
-        }
-
-        // Delegate the complex image collage rendering straight to your custom layout view
-        buildPlantCollage(plant.imagePaths)
-
-        if (plant.wikiSummary.isNotEmpty()) {
-            binding.tvWikiSummary.text = plant.wikiSummary
-            binding.tvWikiLink.visibility = View.VISIBLE
-            
-            if (plant.wikiImageURL.isNotEmpty()) {
-                binding.wikiImage.visibility = View.VISIBLE
-            }
-        }
-    }
-
-    private fun buildPlantCollage(paths: List<String>) {
-        val collageView = binding.plantCollageView
-
-        collageView.setImages(paths)
-
-        collageView.onImageClickListener = { allPaths, selectedIndex ->
-            FullImageViewerDialog(allPaths, selectedIndex).show(
-                supportFragmentManager, 
-                "image_viewer"
+    private fun configureListeners() {
+        binding.btnPrimary.setOnClickListener {
+            presenter.handlePrimaryAction(
+                binding.etNickname.text.toString(),
+                binding.etNotes.text.toString()
             )
         }
+
+        binding.btnSecondary.setOnClickListener {
+            presenter.handleSecondaryAction()
+        }
+
+        binding.btnDeleteCollection.setOnClickListener {
+            presenter.handleDeleteRequested()
+        }
+
+        binding.btnWikiSource.setOnClickListener {
+            presenter.onWikipediaClicked()
+        }
     }
 
-    override fun updateActionBarTitle(nickname: String) {
-        supportActionBar?.title = if (nickname.isBlank()) "Plant Details" else "$nickname's Details"
+    override fun setupUiForMode(mode: PlantDetailsContract.Mode) {
+        if (mode == PlantDetailsContract.Mode.DETAILS) {
+            binding.toolbar.title = "Plant Details"
+            binding.btnPrimary.text = "Update Details"
+            binding.btnSecondary.text = "Back"
+            binding.btnDeleteCollection.visibility = View.VISIBLE
+        } else {
+            binding.toolbar.title = "Identification Result"
+            binding.btnPrimary.text = "Save Plant"
+            binding.btnSecondary.text = "Discard"
+            binding.btnDeleteCollection.visibility = View.GONE
+        }
     }
 
-    override fun updateSaveButtonState(isSaving: Boolean, text: String) {
-        binding.btnUpdate.isEnabled = isSaving
-        binding.btnUpdate.text = text
+    override fun showPlantDetails(result: PlantResult) {
+        binding.etNickname.setText(result.nickname)
+        binding.etNotes.setText(result.notes)
+        binding.tvScientificName.text = result.scientificName
+        binding.tvAuthorship.text = result.authorship
+        binding.tvFamily.text = result.family
+        binding.tvCommonNames.text = result.commonNames.joinToString(", ")
+
+        if (result.wikiSummary.isBlank()) {
+            binding.wikiCard.visibility = View.GONE
+        } else {
+            binding.wikiCard.visibility = View.VISIBLE
+            binding.tvWikiSummary.text = result.wikiSummary
+            
+            if (result.wikiImageURL.isNotBlank()) {
+                binding.ivWikiImage.visibility = View.VISIBLE
+                Glide.with(this).load(result.wikiImageURL).into(binding.ivWikiImage)
+            } else {
+                binding.ivWikiImage.visibility = View.GONE
+            }
+        }
+
+        binding.plantCollageView.setImages(result.imagePaths)
+        binding.plantCollageView.onImageClickListener = { list, index ->
+            FullImageViewerDialog(list, index).show(supportFragmentManager, "image_viewer")
+        }
     }
 
-    override fun showSuccessMessage(message: String) {
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+    override fun updatePrimaryButtonState(isEnabled: Boolean, text: String) {
+        binding.btnPrimary.isEnabled = isEnabled
+        binding.btnPrimary.text = text
     }
 
-    override fun showErrorDialog(message: String) {
+    override fun showDeleteConfirmationDialog() {
         AlertDialog.Builder(this)
-            .setTitle("Error")
-            .setMessage(message)
-            .setPositiveButton("Dismiss") { dialog, _ -> dialog.dismiss() }
+            .setTitle("Delete Entry")
+            .setMessage("Are you sure you want to remove this plant from your collection?")
+            .setPositiveButton("Delete") { _, _ -> presenter.confirmDeletion() }
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
-    override fun showToast(message: String) {
+    override fun showMessage(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    override fun closeScreen() {
+    override fun showError(error: String) {
+        AlertDialog.Builder(this)
+            .setTitle("Error")
+            .setMessage(error)
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
+    override fun navigateBack() {
         finish()
     }
 
-    private fun addInfoRow(title: String, value: String) {
-        val view = layoutInflater.inflate(android.R.layout.simple_list_item_2, binding.infoContainer, false)
-        val text1 = view.findViewById<TextView>(android.R.id.text1)
-        val text2 = view.findViewById<TextView>(android.R.id.text2)
-        
-        text1.text = title
-        text1.setTextColor(resources.getColor(android.R.color.darker_gray, theme))
-        text1.textSize = 12f
-        
-        text2.text = value
-        text2.textSize = 16f
-        
-        binding.infoContainer.addView(view)
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        closeScreen()
-        return true
+    override fun openWikipediaLink(url: String) {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
     }
 
     override fun onDestroy() {
