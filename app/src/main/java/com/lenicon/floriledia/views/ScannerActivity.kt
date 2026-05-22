@@ -18,11 +18,13 @@ import com.lenicon.floriledia.R
 import com.lenicon.floriledia.adapters.ScannerImageAdapter
 import com.lenicon.floriledia.contracts.ScannerContract
 import com.lenicon.floriledia.models.PlantPhoto
+import com.lenicon.floriledia.models.UserPreferences
 import com.lenicon.floriledia.models.PlantResult
 import com.lenicon.floriledia.presenters.ScannerPresenter
 import com.lenicon.floriledia.utils.NavigationHelper
 import java.io.File
 import java.io.FileOutputStream
+
 
 class ScannerActivity : AppCompatActivity(), ScannerContract.View {
 

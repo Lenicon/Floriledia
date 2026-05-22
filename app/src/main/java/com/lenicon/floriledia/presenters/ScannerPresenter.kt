@@ -40,7 +40,7 @@ class ScannerPresenter(
 
     override fun handleCameraOptionSelected() {
         try {
-            val file = File.createTempFile("scan_", ".jpg", cacheDir)
+            val file = File.createTempFile("scan_", ".jpg", filesDir)
             view?.triggerCameraIntent(file)
         } catch (e: Exception) {
             view?.showError("Failed to prepare camera file system.")
