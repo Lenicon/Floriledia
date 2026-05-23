@@ -31,7 +31,6 @@ class ScannerImageAdapter(
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val inflater = LayoutInflater.from(parent.context)
         
-        // Check if item slot evaluates to an existing image thumbnail or standard action block
         return if (position < photos.size) {
             val view = inflater.inflate(R.layout.item_scanner_thumbnail, parent, false)
             val ivThumb = view.findViewById<ImageView>(R.id.ivPlantThumb)

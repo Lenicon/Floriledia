@@ -21,10 +21,10 @@ class LoginActivity : Activity(), LoginContract.View {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Step 1: Inflate layout structure instantly to avoid window registration context leaks
+
         setContentView(R.layout.activity_login)
 
-        // Step 2: Initialize views so they are ready for any immediate presenter callbacks
+
         progressBar = findViewById(R.id.progress_bar)
         
         val etEmail = findViewById<EditText>(R.id.et_login_email) 
@@ -32,7 +32,7 @@ class LoginActivity : Activity(), LoginContract.View {
         val btnLogin = findViewById<Button>(R.id.btn_login_submit)
         val btnToRegister = findViewById<Button>(R.id.btn_to_register)
 
-        // Step 3: Set up button click action handlers
+
         btnLogin.setOnClickListener {
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString()
@@ -44,15 +44,15 @@ class LoginActivity : Activity(), LoginContract.View {
             startActivity(intent)
         }
 
-        // Step 4: Initialize presenter dependencies now that the view targets exist safely
+
         val userPrefs = UserPreferences(applicationContext)
         presenter = LoginPresenter(this, userPrefs)
         
-        // Step 5: Safely check session state as the final step
+        
         presenter.checkUserSession()
     }
 
-    // --- MVP View Contract Interface Implementations ---
+
 
     override fun showLoading() {
         progressBar.visibility = View.VISIBLE

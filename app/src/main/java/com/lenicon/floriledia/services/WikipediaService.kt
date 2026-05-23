@@ -34,12 +34,12 @@ object WikipediaService {
                 reader.close()
                 connection.disconnect()
 
-                // Parse out the nested page maps exactly like your Dart structure
+
                 val jsonResponse = JSONObject(responseStringBuilder.toString())
                 val queryObj = jsonResponse.optJSONObject("query") ?: return@withContext WikipediaResult()
                 val pagesObj = queryObj.optJSONObject("pages") ?: return@withContext WikipediaResult()
                 
-                // Get the first available key (the pageId)
+                
                 val keys = pagesObj.keys()
                 if (!keys.hasNext()) return@withContext WikipediaResult()
                 val pageId = keys.next()
@@ -47,7 +47,7 @@ object WikipediaService {
                 if (pageId != "-1") {
                     val pageData = pagesObj.getJSONObject(pageId)
                     
-                    // Grab extract and split at markdown headers if they exist
+                    
                     val rawExtract = pageData.optString("extract", "")
                     val summary = if (rawExtract.contains("\n\n==")) {
                         rawExtract.split("\n\n==")[0]
@@ -55,7 +55,7 @@ object WikipediaService {
                         rawExtract
                     }
 
-                    // Grab the thumbnail image URL link source safely
+
                     val thumbnailObj = pageData.optJSONObject("thumbnail")
                     val imageUrl = thumbnailObj?.optString("source", "") ?: ""
 

@@ -10,13 +10,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:elevation="0dp"
-        android:background="@android:color/transparent">
+        android:background="@color/pastel_slate_blue">
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:title="Plant Details"
-            app:titleTextColor="@color/pastel_slate_blue"
+            app:titleTextColor="@color/toolbar_title_colors"
             android:background="@android:color/transparent"/>
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -40,41 +40,53 @@
                 android:layout_marginBottom="16dp"
                 android:background="#00000000" />
 
+
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 android:hint="Nickname"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                app:boxBackgroundColor="@color/pastel_surface_cream"
+                app:boxStrokeColor="@color/pastel_slate_blue"
+                app:hintTextColor="@color/pastel_slate_blue"
+                android:textColorHint="@color/pastel_slate_blue_muted">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etNickname"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/pastel_slate_blue"
                     android:inputType="textCapWords" />
             </com.google.android.material.textfield.TextInputLayout>
 
+
             <TextView android:text="Scientific Name" android:textColor="@color/pastel_slate_blue" android:textStyle="bold" android:layout_width="match_parent" android:layout_height="wrap_content"/>
-            <TextView android:id="@+id/tvScientificName" android:textSize="18sp" android:textColor="#333333" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="4dp"/>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#D1D9E6" android:layout_marginBottom="12dp"/>
+            <TextView android:id="@+id/tvScientificName" android:textSize="18sp" android:textColor="@color/pastel_slate_blue" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="4dp"/>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/pastel_muted_gray" android:layout_marginBottom="12dp"/>
 
             <TextView android:text="Authorship" android:textColor="@color/pastel_slate_blue" android:textStyle="bold" android:layout_width="match_parent" android:layout_height="wrap_content"/>
-            <TextView android:id="@+id/tvAuthorship" android:textSize="18sp" android:textColor="#333333" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="4dp"/>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#D1D9E6" android:layout_marginBottom="12dp"/>
+            <TextView android:id="@+id/tvAuthorship" android:textSize="18sp" android:textColor="@color/pastel_slate_blue" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="4dp"/>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/pastel_muted_gray" android:layout_marginBottom="12dp"/>
 
             <TextView android:text="Family" android:textColor="@color/pastel_slate_blue" android:textStyle="bold" android:layout_width="match_parent" android:layout_height="wrap_content"/>
-            <TextView android:id="@+id/tvFamily" android:textSize="18sp" android:textColor="#333333" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="4dp"/>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#D1D9E6" android:layout_marginBottom="12dp"/>
+            <TextView android:id="@+id/tvFamily" android:textSize="18sp" android:textColor="@color/pastel_slate_blue" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="4dp"/>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/pastel_muted_gray" android:layout_marginBottom="12dp"/>
 
             <TextView android:text="Common Names" android:textColor="@color/pastel_slate_blue" android:textStyle="bold" android:layout_width="match_parent" android:layout_height="wrap_content"/>
-            <TextView android:id="@+id/tvCommonNames" android:textSize="18sp" android:textColor="#333333" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="4dp"/>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#D1D9E6" android:layout_marginBottom="24dp"/>
+            <TextView android:id="@+id/tvCommonNames" android:textSize="18sp" android:textColor="@color/pastel_slate_blue" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="4dp"/>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/pastel_muted_gray" android:layout_marginBottom="24dp"/>
+
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Notes"
                 android:layout_marginBottom="24dp"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                app:boxBackgroundColor="@color/pastel_surface_cream"
+                app:boxStrokeColor="@color/pastel_slate_blue"
+                app:hintTextColor="@color/pastel_slate_blue"
+                android:textColorHint="@color/pastel_slate_blue_muted">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etNotes"
                     android:layout_width="match_parent"
@@ -82,8 +94,10 @@
                     android:gravity="top"
                     android:minLines="3"
                     android:maxLines="5"
+                    android:textColor="@color/pastel_slate_blue"
                     android:inputType="textMultiLine" />
             </com.google.android.material.textfield.TextInputLayout>
+
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/wikiCard"
@@ -93,7 +107,7 @@
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
                 app:strokeWidth="0dp"
-                app:cardBackgroundColor="?attr/colorSurface">
+                app:cardBackgroundColor="@color/pastel_surface_cream">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -120,7 +134,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:textColor="#444444"
+                            android:textColor="@color/pastel_slate_blue_muted"
                             android:textSize="15sp"
                             android:lineSpacingMultiplier="1.2"/>
                         <TextView
@@ -136,25 +150,27 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+
             <Button
                 android:id="@+id/btnDeleteCollection"
                 style="@style/Widget.Material3.Button.TonalButton"
-                app:backgroundTint="#FFEBEB"
+                app:backgroundTint="@color/pastel_logout_red_bg"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:text="Delete from Collection"
-                android:textColor="#D32F2F"
+                android:text="Delete from Florilegium"
+                android:textColor="@color/pastel_logout_red_text"
                 app:icon="@android:drawable/ic_menu_delete"
-                app:iconTint="#D32F2F"
+                app:iconTint="@color/pastel_logout_red_text"
                 android:visibility="gone" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="?attr/colorSurface"
+        android:background="@color/pastel_surface_cream"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
         android:paddingTop="16dp"
@@ -166,7 +182,8 @@
             android:layout_height="56dp"
             android:layout_weight="1"
             android:text="Save Plant"
-            android:textColor="#333333"
+            android:textColor="@color/pastel_slate_blue"
+            android:textStyle="bold"
             app:backgroundTint="@color/pastel_accent_yellow"
             android:layout_marginEnd="8dp"/>
         <Button

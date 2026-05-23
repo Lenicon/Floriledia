@@ -11,18 +11,14 @@ class UserPreferences(context: Context) {
         private const val KEY_IS_LOGGED_IN = "is_logged_in"
         private const val KEY_CURRENT_USER_EMAIL = "current_logged_in_email"
         
-        // Suffix patterns for email-linked storage sandbox profiles
         private const val SUFFIX_USERNAME = "_username"
         private const val SUFFIX_PASSWORD = "_password"
         private const val SUFFIX_TOTAL_SCANS = "_total_scans"
         private const val SUFFIX_SAVED_PLANTS = "_saved_plants"
     }
 
-    /**
-     * Registers a new account locally. Returns false if the email is already registered.
-     */
     fun registerUser(username: String, email: String, password: String): Boolean {
-        if (emailExists(email)) return false // Email must be unique across accounts
+        if (emailExists(email)) return false
         
         prefs.edit().apply {
             putString("user_${email}${SUFFIX_USERNAME}", username)
@@ -34,9 +30,6 @@ class UserPreferences(context: Context) {
         return true
     }
 
-    /**
-     * Authenticates via email and password, establishing the active session context if matched.
-     */
     fun loginUser(email: String, password: String): Boolean {
         val savedPassword = prefs.getString("user_${email}${SUFFIX_PASSWORD}", null)
         if (savedPassword != null && savedPassword == password) {
@@ -56,10 +49,6 @@ class UserPreferences(context: Context) {
 
     fun isUserLoggedIn(): Boolean = prefs.getBoolean(KEY_IS_LOGGED_IN, false)
 
-    /**
-     * Gets the profile details of whoever is currently active.
-     * Returns a Triple containing: (Username, Email, Password)
-     */
     fun getSavedUser(): Triple<String?, String?, String?> {
         val currentEmail = prefs.getString(KEY_CURRENT_USER_EMAIL, null) ?: return Triple(null, null, null)
         val username = prefs.getString("user_${currentEmail}${SUFFIX_USERNAME}", null)
@@ -68,9 +57,6 @@ class UserPreferences(context: Context) {
         return Triple(username, currentEmail, password)
     }
 
-    /**
-     * Fetches scan and collection counts tailored to the active profile's email.
-     */
     fun getMetrics(): Pair<Int, Int> {
         val currentEmail = prefs.getString(KEY_CURRENT_USER_EMAIL, null) ?: return Pair(0, 0)
         return Pair(
@@ -79,9 +65,6 @@ class UserPreferences(context: Context) {
         )
     }
 
-    /**
-     * Increments profile metrics safely on the active email profile sandbox.
-     */
     fun incrementScans() {
         val currentEmail = prefs.getString(KEY_CURRENT_USER_EMAIL, null) ?: return
         val currentScans = prefs.getInt("user_${currentEmail}${SUFFIX_TOTAL_SCANS}", 0)
@@ -91,7 +74,7 @@ class UserPreferences(context: Context) {
     fun clearSession() {
         prefs.edit().apply {
             putBoolean(KEY_IS_LOGGED_IN, false)
-            putString(KEY_CURRENT_USER_EMAIL, null) // Terminate active pointer state
+            putString(KEY_CURRENT_USER_EMAIL, null)
             apply()
         }
     }

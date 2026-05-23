@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/pastel_bg_blue">
 
-    <!-- Header Container -->
+
     <LinearLayout
         android:id="@+id/ll_top_header"
         android:layout_width="match_parent"
@@ -23,7 +23,7 @@
             android:textStyle="bold"
             android:textColor="@color/pastel_slate_blue" />
 
-        <!-- Search Field wrapped in CardView -->
+
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -31,7 +31,8 @@
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="24dp"
             app:cardElevation="2dp"
-            app:cardBackgroundColor="?attr/colorSurface">
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/pastel_surface_cream">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -46,6 +47,7 @@
                     android:src="@android:drawable/ic_menu_search"
                     app:tint="@color/pastel_slate_blue" />
 
+
                 <EditText
                     android:id="@+id/et_search"
                     android:layout_width="0dp"
@@ -54,8 +56,8 @@
                     android:layout_marginStart="12dp"
                     android:background="@null"
                     android:hint="Search gathered plants..."
-                    android:textColorHint="#888888"
-                    android:textColor="#333333"
+                    android:textColorHint="@color/pastel_slate_blue_muted"
+                    android:textColor="@color/pastel_slate_blue"
                     android:textSize="16sp"
                     android:singleLine="true" />
 
@@ -71,21 +73,22 @@
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 
-    <!-- Bottom Navigation Bar -->
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="72dp"
         android:layout_alignParentBottom="true"
-        android:background="?attr/colorSurface"
+        android:background="@color/pastel_slate_blue"
         app:elevation="16dp"
         app:menu="@menu/bottom_nav_menu"
-        app:itemIconTint="@color/pastel_slate_blue"
-        app:itemTextColor="@color/pastel_slate_blue"
+        app:itemIconTint="@color/nav_item_colors"
+        app:itemTextColor="@color/nav_item_colors"
         app:labelVisibilityMode="labeled"
-        app:itemRippleColor="@color/pastel_accent_yellow" />
+        app:itemRippleColor="?attr/colorControlHighlight"
+        app:bottomNavigationStyle="@style/CustomBottomNavStyle" />
 
-    <!-- Dynamic Center Grid Space -->
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

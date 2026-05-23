@@ -5,18 +5,22 @@
     android:layout_height="100dp"
     android:layout_margin="4dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp"
+    app:cardBackgroundColor="@color/pastel_surface_cream">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
 
         <ImageView
             android:id="@+id/ivPlantThumb"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:background="@color/white" />
+            android:background="@color/pastel_surface_cream" />
+
 
         <TextView
             android:id="@+id/tvOrganTag"
@@ -26,12 +30,12 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="8dp"
             android:background="@drawable/rounded_tag_bg" 
-            android:backgroundTint="@color/pastel_slate_blue"
             android:paddingHorizontal="8dp"
             android:paddingVertical="4dp"
             android:textColor="@color/pastel_accent_yellow"
             android:textStyle="bold"
             android:textSize="10sp" />
+
 
         <FrameLayout
             android:id="@+id/viewDeleteCircle"
@@ -42,7 +46,7 @@
             android:layout_marginTop="4dp"
             android:layout_marginEnd="4dp"
             android:background="@android:drawable/ic_menu_close_clear_cancel"
-            android:backgroundTint="@color/pastel_slate_blue" />
+            android:backgroundTint="@color/pastel_logout_red_text" />
             
     </RelativeLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -16,7 +16,7 @@ object StorageService {
     private lateinit var appContext: Context
     private var currentAccount: String = "guest"
     
-    // FIX 1: This prefix is computed dynamically to keep file names safe and separate
+    
     private val accountFilePrefix: String
         get() = currentAccount.replace(Regex("[^a-zA-Z0-9_]"), "_")
 
@@ -26,20 +26,18 @@ object StorageService {
     val savedPlants: List<JSONObject>
         get() = _plantsStateFlow.value
 
-    // This must clear on account change
+
     private val globalSavedPaths = mutableSetOf<String>()
 
     fun initialize(context: Context) {
         appContext = context.applicationContext
     }
 
-    /**
-     * Switches the active account profile sandbox. Call this upon login.
-     */
+
     suspend fun switchAccount(accountIdentifier: String) {
         currentAccount = if (accountIdentifier.isBlank()) "guest" else accountIdentifier
         
-        // FIX 2: Purge the memory cache state so the new account doesn't inherit references
+        
         globalSavedPaths.clear()
         
         load()
@@ -48,26 +46,21 @@ object StorageService {
     suspend fun logout() = withContext(Dispatchers.IO) {
         currentAccount = "guest"
         globalSavedPaths.clear()
-        load() // Re-load to empty out the StateFlow for the guest sandbox
+        load()
     }
 
-    /**
-     * Loads all plants from files matching the active account prefix.
-     */
+
     suspend fun load() = withContext(Dispatchers.IO) {
         val plants = getAllSavedPlants()
         _plantsStateFlow.value = plants
     }
 
-    /**
-     * Appends a new plant result item to the active account file structure.
-     */
+
     suspend fun savePlant(result: PlantResult) = withContext(Dispatchers.IO) {
         var fileIndex = 1
         var targetFile: File
 
         while (true) {
-            // FIX 1: Applied sanitized token boundary instead of raw account email
             targetFile = File(appContext.filesDir, "${accountFilePrefix}_collection_$fileIndex.json")
             if (targetFile.exists()) {
                 if (targetFile.length() < MAX_FILE_SIZE) {
@@ -105,7 +98,7 @@ object StorageService {
     }
 
     suspend fun updatePlant(updatedPlant: PlantResult) = withContext(Dispatchers.IO) {
-        // FIX 1: Applied sanitized account token boundary 
+
         val files = appContext.filesDir.listFiles { _, name -> 
             name.startsWith("${accountFilePrefix}_collection_") && name.endsWith(".json") 
         } ?: return@withContext
@@ -133,7 +126,7 @@ object StorageService {
     }
 
     suspend fun deletePlant(id: String) = withContext(Dispatchers.IO) {
-        // FIX 1: Applied sanitized account token boundary
+
         val files = appContext.filesDir.listFiles { _, name -> 
             name.startsWith("${accountFilePrefix}_collection_") && name.endsWith(".json") 
         } ?: return@withContext
@@ -178,7 +171,6 @@ object StorageService {
         val context = appContext ?: return@withContext emptyList()
         val allPlants = mutableListOf<JSONObject>()
         
-        // FIX 1: Applied sanitized account token boundary
         val files = context.filesDir.listFiles { _, name -> 
             name.startsWith("${accountFilePrefix}_collection_") && name.endsWith(".json") 
         } ?: return@withContext emptyList()

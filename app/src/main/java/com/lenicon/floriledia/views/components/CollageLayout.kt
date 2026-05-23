@@ -18,7 +18,7 @@ class CollageLayout @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
-    // Define a callback mechanism so your Activity can intercept image clicks
+
     var onImageClickListener: ((paths: List<String>, selectedIndex: Int) -> Unit)? = null
 
     init {
@@ -26,7 +26,7 @@ class CollageLayout @JvmOverloads constructor(
     }
 
     fun setImages(paths: List<String>) {
-        removeAllViews() // Avoid memory leaks/duplicate rendering on state redraws
+        removeAllViews()
         val count = paths.size
         if (count == 0) return
 
@@ -57,14 +57,13 @@ class CollageLayout @JvmOverloads constructor(
                 addView(leftImg, LayoutParams(0, LayoutParams.MATCH_PARENT, 4f).apply { marginEnd = elementMargin })
                 addView(rightContainer, LayoutParams(0, LayoutParams.MATCH_PARENT, 1f))
             }
-            else -> { // 4+ items
+            else -> {
                 val leftImg = createImageWrapper(paths[0], 0, paths)
                 val rightContainer = createVerticalContainer()
 
                 val rightImg1 = createImageWrapper(paths[1], 1, paths)
                 val rightImg2 = createImageWrapper(paths[2], 2, paths)
 
-                // Bottom frame container with overlay check setup
                 val bottomStackFrame = FrameLayout(context)
                 val rightImg3 = createImageWrapper(paths[3], 3, paths)
                 bottomStackFrame.addView(rightImg3, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))

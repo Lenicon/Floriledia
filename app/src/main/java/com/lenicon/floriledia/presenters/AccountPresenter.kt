@@ -19,11 +19,9 @@ class AccountPresenter(
 
     override fun loadUserData() {
         presenterScope.launch {
-            // Fetch layout details out of shared preferences memory storage
             val (username, email, _) = repository.getSavedUser()
             val (scanCount, _) = repository.getMetrics()
 
-            // DYNAMIC CALCULATION: Count actual entries inside the files sandbox partition
             val savedPlantsCount = withContext(Dispatchers.IO) {
                 StorageService.getAllSavedPlants().size
             }
@@ -38,7 +36,6 @@ class AccountPresenter(
     }
 
     override fun incrementScanCount() {
-        // Increments your metrics storage record anytime a scan completes successfully
         repository.incrementScans()
     }
 

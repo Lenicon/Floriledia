@@ -43,7 +43,6 @@ class AccountActivity : AppCompatActivity(), AccountContract.View {
 
     override fun onResume() {
         super.onResume()
-        // Refresh values whenever the view layout becomes active on the glass screen surface
         presenter.loadUserData()
     }
 

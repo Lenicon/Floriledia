@@ -27,15 +27,12 @@ class FlorilegiumPresenter(
 
     override fun startObservingCollection() {
         lifecycleScope.launch {
-            // Trigger an initial storage load sequence across database shards
             StorageService.load()
 
-            // Reactively collect from the shared background state flow stream
             StorageService.plantsStateFlow.collectLatest { jsonObjects ->
                 val structuralPlants = mapJsonToPlantResults(jsonObjects)
                 allCachedPlants = structuralPlants
 
-                // Jump back onto main UI execution line to apply layout changes
                 withContext(Dispatchers.Main) {
                     view?.showPlants(structuralPlants)
                     view?.updateHeaderTitle(structuralPlants.size)
@@ -70,9 +67,6 @@ class FlorilegiumPresenter(
         view?.navigateToDetails(plant)
     }
 
-    /**
-     * Translates low-level JSONObject array streams safely back into explicit domain models.
-     */
     private suspend fun mapJsonToPlantResults(jsonList: List<JSONObject>): List<PlantResult> = 
         withContext(Dispatchers.Default) {
             jsonList.map { obj ->

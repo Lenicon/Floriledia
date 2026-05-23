@@ -25,6 +25,8 @@ import com.lenicon.floriledia.utils.NavigationHelper
 import java.io.File
 import java.io.FileOutputStream
 import com.lenicon.floriledia.contracts.PlantDetailsContract
+import androidx.core.content.ContextCompat
+import com.google.android.material.card.MaterialCardView
 
 
 class ScannerActivity : AppCompatActivity(), ScannerContract.View {
@@ -35,11 +37,11 @@ class ScannerActivity : AppCompatActivity(), ScannerContract.View {
 
     private lateinit var tvPhotoCount: TextView
     private lateinit var gvPhotos: GridView
-    private lateinit var btnIdentify: FrameLayout
+    private lateinit var btnIdentify: MaterialCardView
     private lateinit var pbLoading: ProgressBar
     private lateinit var tvButtonText: TextView
 
-    // Camera launcher
+
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             pendingCameraFile?.let { file ->
@@ -48,14 +50,14 @@ class ScannerActivity : AppCompatActivity(), ScannerContract.View {
         }
     }
 
-    // Gallery picker launcher
+
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { selectedUri ->
             showOrganSelectionDialog { organ -> presenter.handleGalleryPhotoSelected(selectedUri, organ) }
         }
     }
 
-    // Permission request launcher
+
     private val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
             presenter.handleAddPhotoClick()
@@ -68,10 +70,10 @@ class ScannerActivity : AppCompatActivity(), ScannerContract.View {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scanner)
 
-        // 1. Initialize views first so they are ready for the presenter
+
         initViews()
 
-        // 2. Attach presenter safely
+
         presenter = ScannerPresenter(lifecycleScope, filesDir, cacheDir, UserPreferences(applicationContext))
         presenter.attachView(this)
 
@@ -92,15 +94,21 @@ class ScannerActivity : AppCompatActivity(), ScannerContract.View {
         tvPhotoCount.text = "Photos: ${photos.size} / 5"
         
         adapter = ScannerImageAdapter(photos.toMutableList(), 5,
-            onAddClick = { checkPermissionAndAdd() }, // Triggered when clicking the '+' item
+            onAddClick = { checkPermissionAndAdd() },
             onDeleteClick = { index -> presenter.handleRemovePhoto(index) }
         )
         gvPhotos.adapter = adapter
         
-        // btnIdentify remains completely disabled until photos are uploaded
+        
         val hasPhotos = photos.isNotEmpty()
         btnIdentify.isEnabled = hasPhotos
-        btnIdentify.setBackgroundColor(if (hasPhotos) Color.parseColor("#FF524444") else Color.parseColor("#FFCCCCCC"))
+        val targetColorInt = if (hasPhotos) {
+            ContextCompat.getColor(this, R.color.pastel_slate_blue)
+        } else {
+            ContextCompat.getColor(this, R.color.pastel_muted_gray)
+        }
+            
+        btnIdentify.setCardBackgroundColor(targetColorInt)
     }
 
     private fun checkPermissionAndAdd() {

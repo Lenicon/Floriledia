@@ -5,22 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/pastel_bg_blue">
 
-    <!-- Bottom Navigation Bar -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation"
-        android:layout_width="match_parent"
-        android:layout_height="72dp"
-        android:layout_alignParentBottom="true"
-        android:background="?attr/colorSurface"
-        app:elevation="16dp"
-        app:menu="@menu/bottom_nav_menu"
-        app:itemIconTint="@color/pastel_slate_blue"
-        app:itemTextColor="@color/pastel_slate_blue"
-        app:labelVisibilityMode="labeled"
-        app:itemActiveIndicatorStyle="@style/Widget.Material3.BottomNavigationView.ActiveIndicator"
-        app:itemRippleColor="@color/pastel_accent_yellow" />
 
-    <!-- Scrollable or Fixed Content Frame -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -30,47 +15,48 @@
         android:layout_alignParentTop="true"
         android:layout_above="@id/bottom_navigation">
 
-        <!-- Profile Info Header Block -->
+
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             app:cardCornerRadius="24dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/pastel_accent_yellow">
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/pastel_soft_yellow_surface">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="24dp">
+                android:padding="28dp">
 
                 <TextView
                     android:id="@+id/tv_account_username"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Username Placeholder"
-                    android:textSize="24sp"
+                    android:textSize="22sp"
                     android:textStyle="bold"
-                    android:textColor="#333333" />
+                    android:textColor="@color/pastel_slate_blue" />
 
                 <TextView
                     android:id="@+id/tv_account_email"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="6dp"
                     android:text="email@example.com"
-                    android:textSize="16sp"
-                    android:textColor="#555555" />
+                    android:textSize="15sp"
+                    android:textColor="@color/pastel_slate_blue_muted" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Metrics Stats Rows -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
+            android:layout_marginTop="40dp"
             android:orientation="horizontal"
             android:weightSum="2">
 
@@ -93,9 +79,11 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="Total Scans"
                     android:textSize="14sp"
-                    android:textColor="#666666" />
+                    android:textStyle="bold"
+                    android:textColor="@color/pastel_slate_blue_muted" />
             </LinearLayout>
 
             <LinearLayout
@@ -117,9 +105,11 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="Saved Plants"
                     android:textSize="14sp"
-                    android:textColor="#666666" />
+                    android:textStyle="bold"
+                    android:textColor="@color/pastel_slate_blue_muted" />
             </LinearLayout>
         </LinearLayout>
 
@@ -128,17 +118,33 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <!-- Logout Action Target -->
-        <Button
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_logout"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="Log Out"
             android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/pastel_slate_blue"
+            android:textColor="@color/pastel_logout_red_text"
             app:cornerRadius="16dp"
+            app:strokeWidth="0dp"
             style="@style/Widget.Material3.Button.TonalButton"
-            app:backgroundTint="?attr/colorSurface" />
+            app:backgroundTint="@color/pastel_logout_red_bg" />
     </LinearLayout>
+
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/pastel_slate_blue"
+        app:elevation="16dp"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemIconTint="@color/nav_item_colors"
+        app:itemTextColor="@color/nav_item_colors"
+        app:labelVisibilityMode="labeled"
+        app:itemRippleColor="?attr/colorControlHighlight"
+        app:bottomNavigationStyle="@style/CustomBottomNavStyle" />
+
 </RelativeLayout>

@@ -25,31 +25,48 @@
         android:gravity="center"
         android:layout_marginBottom="32dp"/>
 
+
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Username"
         android:layout_marginBottom="16dp"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        app:boxBackgroundColor="@color/pastel_surface_cream"
+        app:boxStrokeColor="@color/pastel_slate_blue"
+        app:boxStrokeErrorColor="@color/pastel_logout_red_text"
+        app:hintTextColor="@color/pastel_slate_blue"
+        android:textColorHint="@color/pastel_slate_blue_muted">
+        
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_reg_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/pastel_slate_blue"
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
+
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Email Address"
         android:layout_marginBottom="16dp"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        app:boxBackgroundColor="@color/pastel_surface_cream"
+        app:boxStrokeColor="@color/pastel_slate_blue"
+        app:boxStrokeErrorColor="@color/pastel_logout_red_text"
+        app:hintTextColor="@color/pastel_slate_blue"
+        android:textColorHint="@color/pastel_slate_blue_muted">
+        
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_reg_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/pastel_slate_blue"
             android:inputType="textEmailAddress" />
     </com.google.android.material.textfield.TextInputLayout>
+
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
@@ -57,13 +74,22 @@
         android:hint="Create Password"
         android:layout_marginBottom="24dp"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-        app:passwordToggleEnabled="true">
+        app:passwordToggleEnabled="true"
+        app:passwordToggleTint="@color/pastel_slate_blue_muted"
+        app:boxBackgroundColor="@color/pastel_surface_cream"
+        app:boxStrokeColor="@color/pastel_slate_blue"
+        app:boxStrokeErrorColor="@color/pastel_logout_red_text"
+        app:hintTextColor="@color/pastel_slate_blue"
+        android:textColorHint="@color/pastel_slate_blue_muted">
+        
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_reg_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/pastel_slate_blue"
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
+
 
     <Button
         android:id="@+id/btn_register_submit"
@@ -73,8 +99,9 @@
         android:textStyle="bold"
         android:textSize="16sp"
         app:backgroundTint="@color/pastel_slate_blue"
-        android:textColor="@android:color/white"
+        android:textColor="@color/white"
         android:text="Register Account" />
+
 
     <Button
         android:id="@+id/btn_to_login"
@@ -83,5 +110,6 @@
         android:layout_marginTop="8dp"
         style="@style/Widget.Material3.Button.TextButton"
         android:textColor="@color/pastel_slate_blue"
+        app:rippleColor="@color/pastel_soft_yellow_ripple"
         android:text="Already registered? Sign In" />
 </LinearLayout>

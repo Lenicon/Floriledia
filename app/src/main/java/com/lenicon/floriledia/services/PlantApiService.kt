@@ -20,7 +20,7 @@ import com.lenicon.floriledia.BuildConfig
 object PlantApiService {
     private const val API_KEY = BuildConfig.PLANTNET_API_KEY 
 
-    // Safe unverified platform fallback matching badCertificateCallback execution logic
+
     private val unsafeOkHttpClient: OkHttpClient by lazy {
         val trustAllCerts = arrayOf<X509TrustManager>(object : X509TrustManager {
             override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
@@ -58,7 +58,7 @@ object PlantApiService {
             
             val bodyString = response.body?.string() ?: throw IOException("Empty payload response")
             
-            // Fixed constructor ambiguity explicitly forcing non-null Type evaluation parameter
+            
             val jsonRoot = JSONObject(bodyString)
             val bestMatch = jsonRoot.getJSONArray("results").getJSONObject(0)
             val species = bestMatch.getJSONObject("species")
@@ -69,7 +69,7 @@ object PlantApiService {
             
             val commonNamesList = mutableListOf<String>()
             
-            // Safe extraction step checking if optional common names collection array exists
+            
             val commonNamesObj = species.opt("commonNames")
             if (commonNamesObj is org.json.JSONArray) {
                 for (i in 0 until commonNamesObj.length()) {
@@ -98,7 +98,6 @@ object PlantApiService {
         
         val request = Request.Builder().url(url).build()
         
-        // Explicitly routing targeted return pathways outside lambda structure boundaries using return@use
         return OkHttpClient().newCall(request).execute().use { response ->
             if (!response.isSuccessful) return@use WikiContainer("", "")
             val body = response.body?.string() ?: return@use WikiContainer("", "")

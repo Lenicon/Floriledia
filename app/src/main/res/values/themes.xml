@@ -1,9 +1,23 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Theme.Floriledia" parent="Theme.Material3.DayNight.NoActionBar">
+
         <item name="colorPrimary">@color/pastel_slate_blue</item>
         <item name="colorSecondary">@color/pastel_accent_yellow</item>
         <item name="android:windowBackground">@color/pastel_bg_blue</item>
 
-        <item name="colorContainer">@color/pastel_accent_yellow</item>
+
+        <item name="colorContainer">@color/pastel_soft_yellow_surface</item>
+        <item name="colorSurface">@color/pastel_surface_cream</item>
+
+
+        <item name="colorControlActivated">@color/pastel_slate_blue</item>
+        <item name="colorControlHighlight">@color/pastel_soft_yellow_ripple</item>
+        <item name="colorError">@color/pastel_logout_red_text</item>
+
+        <item name="bottomNavigationStyle">@style/CustomBottomNavStyle</item>
+    </style>
+
+    <style name="CustomBottomNavStyle" parent="Widget.Material3.BottomNavigationView">
+        <item name="indicatorColor">@android:color/transparent</item>
     </style>
 </resources>

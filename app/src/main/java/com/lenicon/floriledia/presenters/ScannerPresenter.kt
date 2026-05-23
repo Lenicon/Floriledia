@@ -82,21 +82,17 @@ class ScannerPresenter(
 
         scope.launch {
             try {
-                // 1. Identify your plant specimen structure from your backend endpoint
                 val result = PlantApiService.identifyPlant(selectedPhotos)
                 
                 userPrefs.incrementScans()
 
-                // 2. Fetch missing Wikipedia summary details sequentially before shifting views
                 if (result.scientificName.isNotBlank()) {
                     val wikiData = com.lenicon.floriledia.services.WikipediaService.fetchWiki(result.scientificName)
                     
-                    // Inject the found results directly into your plant model
                     result.wikiSummary = wikiData.wikiSummary
                     result.wikiImageURL = wikiData.wikiImageURL
                 }
 
-                // 3. Launch results layout activity interface context safely
                 view?.openResultScreen(result)
                 selectedPhotos.clear()
                 view?.updatePhotoList(selectedPhotos)
