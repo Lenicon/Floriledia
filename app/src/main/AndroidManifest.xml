@@ -21,8 +21,8 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Floriledia"
         tools:targetApi="31">
@@ -50,7 +50,6 @@
         <activity android:name=".views.activities.FlorilegiumActivity" android:exported="false" />
         <activity android:name=".views.activities.ScannerActivity" android:exported="false" />
         <activity android:name=".views.activities.AccountActivity" android:exported="false" />
-        <activity android:name=".views.activities.ResultScreenActivity" android:exported="false" />
         <activity android:name=".views.activities.PlantDetailsActivity" android:exported="false" />
 
     </application>
